@@ -1,170 +1,173 @@
 :host {
-    display: inline-block;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 
-    .eq-text {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start; // changed from baseline to flex start for keeping action button at the top
-        box-sizing: content-box;
+  .eq-text {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; // changed from baseline to flex start for keeping action button at the top
+    box-sizing: content-box;
 
-        &.cursor {
-            cursor: text;
-        }
-
-        .text {
-            position: relative;
-            display: block;
-            width: 100%;
-            height: 100%;
-            font-size: 16px;
-            min-height: var(--min-height);
-            max-height: var(--max-height);
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            &::-webkit-scrollbar {
-                width: 6px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 999px;
-                transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-            }
-
-            &::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.25);
-                border-radius: 999px;
-                transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-            }
-
-            &:hover::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.45);
-                transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-            }
-
-            &:focus::-webkit-scrollbar-thumb {
-                background: var(--mdc-theme-primary);
-                transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-            }
-
-            span {
-            }
-
-            &.is_null {
-                font-style: italic;
-            }
-
-            &.small {
-                span {
-                    font-size: 85%;
-                }
-            }
-
-            &.normal {
-                span {
-                }
-            }
-
-            &.large {
-                span {
-                    font-size: 125%;
-                }
-            }
-
-            &.extra {
-                span {
-                    font-size: 150%;
-                }
-            }
-
-        }
-
-        mat-form-field {
-            width: calc(100% - 80px) !important;
-
-            .textarea {
-                position: relative;
-                font-size: 16px;
-                resize: none;
-                line-height: 1.125;
-
-                &.view {
-                    color: var(--mdc-theme-text-primary-on-background) !important;
-                }
-
-                &::-webkit-scrollbar {
-                    width: 6px;
-                    background: rgba(0, 0, 0, 0.1);
-                    border-radius: 999px;
-                    transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-                }
-
-                &::-webkit-scrollbar-thumb {
-                    background: rgba(0, 0, 0, 0.25);
-                    border-radius: 999px;
-                    transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-                }
-
-                &:hover::-webkit-scrollbar-thumb {
-                    background: rgba(0, 0, 0, 0.45);
-                    transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-                }
-
-                &:focus::-webkit-scrollbar-thumb {
-                    background: var(--mdc-theme-primary);
-                    transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
-                }
-
-                &.is_null {
-                    font-style: italic;
-                }
-
-                &.small {
-                    font-size: 85%;
-                }
-
-                &.large {
-                    font-size: 125%;
-                }
-
-                &.extra {
-                    font-size: 150%;
-                }
-            }
-
-            .suffix-button {
-                position: absolute;
-                top: -13px;
-                right: 0;
-                z-index: 2;
-            }
-
-            &.disabled {
-                width: calc(100% - 80px) !important;
-            }
-
-            mat-label {
-                font-size: 16px;
-            }
-
-            &::ng-deep .mat-form-field-flex {
-                padding-right: 1px;
-
-                /* hack to prevent default width of 180px */
-                & > .mat-form-field-infix {
-                    padding-top: 20px;
-                    padding-bottom: 5px;
-                    width: 100% !important;
-                }
-            }
-
-            mat-hint {
-                width: 100%;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-        }
+    &.cursor {
+      cursor: text;
     }
+
+    .text {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      font-size: 16px;
+      min-height: var(--min-height);
+      max-height: var(--max-height);
+      overflow-x: hidden;
+      overflow-y: auto;
+      top: 30px;
+      left: 12px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 999px;
+        transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 999px;
+        transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+      }
+
+      &:hover::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.45);
+        transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+      }
+
+      &:focus::-webkit-scrollbar-thumb {
+        background: var(--mdc-theme-primary);
+        transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+      }
+
+      span {
+        line-height: 18px;
+      }
+
+      &.is_null {
+        font-style: italic;
+      }
+
+      &.small {
+        span {
+          font-size: 85%;
+        }
+      }
+
+      &.normal {
+        span {
+        }
+      }
+
+      &.large {
+        span {
+          font-size: 125%;
+        }
+      }
+
+      &.extra {
+        span {
+          font-size: 150%;
+        }
+      }
+
+    }
+
+    mat-form-field {
+      width: calc(100% - 80px) !important;
+
+      .textarea {
+        position: relative;
+        font-size: 16px;
+        resize: none;
+        line-height: 1.125;
+
+        &.view {
+          color: var(--mdc-theme-text-primary-on-background) !important;
+        }
+
+        &::-webkit-scrollbar {
+          width: 6px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 999px;
+          transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.25);
+          border-radius: 999px;
+          transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+        }
+
+        &:hover::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.45);
+          transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+        }
+
+        &:focus::-webkit-scrollbar-thumb {
+          background: var(--mdc-theme-primary);
+          transition: background 300ms cubic-bezier(0.55, 0, 0.55, 0.2)
+        }
+
+        &.is_null {
+          font-style: italic;
+        }
+
+        &.small {
+          font-size: 85%;
+        }
+
+        &.large {
+          font-size: 125%;
+        }
+
+        &.extra {
+          font-size: 150%;
+        }
+      }
+
+      .suffix-button {
+        position: absolute;
+        top: -13px;
+        right: 0;
+        z-index: 2;
+      }
+
+      &.disabled {
+        width: calc(100% - 80px) !important;
+      }
+
+      mat-label {
+        font-size: 16px;
+      }
+
+      &::ng-deep .mat-form-field-flex {
+        padding-right: 1px;
+
+        /* hack to prevent default width of 180px */
+        & > .mat-form-field-infix {
+          padding-top: 20px;
+          padding-bottom: 5px;
+          width: 100% !important;
+        }
+      }
+
+      mat-hint {
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
 }

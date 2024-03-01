@@ -2,7 +2,8 @@
     #eqText
     class="eq-text"
     (click)="activate()"
-    [class.cursor]="mode === 'edit' && !disabled">
+    [class.cursor]="mode === 'edit' && !disabled"
+    [style.padding-bottom.px]="mode === 'view' ? 30 : 0">
     <span *ngIf="mode === 'view'"
             class="text"
             [class.is_null]="is_null"
