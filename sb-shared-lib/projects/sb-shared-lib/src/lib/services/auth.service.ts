@@ -144,18 +144,16 @@ export class AuthService {
     public async signIn(login: string, password: string) {
         try {
             const environment:any = await this.env.getEnv();
-            const data = await this.http.get<any>(environment.backend_url+'?do=user_signin', {
-                params: {
+            const data = await this.http.post<any>(environment.backend_url+'?do=user_signin', {
                     login: login,
                     password: password
-                }
-            })
-            .pipe(
-                catchError((response: HttpErrorResponse, caught: Observable<any>) => {
-                    throw response;
                 })
-            )
-            .toPromise();
+                .pipe(
+                    catchError((response: HttpErrorResponse, caught: Observable<any>) => {
+                        throw response;
+                    })
+                )
+                .toPromise();
 
             // authentication will trigger router navigation within running controller
             await this.authenticate();
