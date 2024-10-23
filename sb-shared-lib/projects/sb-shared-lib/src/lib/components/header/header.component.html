@@ -1,7 +1,7 @@
 
 <a *ngIf="app_logo_url.length" class="navbar-brand" href="/apps"><img class="navbar-brand-full" src="{{app_logo_url}}" /></a>
 <button type="button" class="navbar-toggler" (click)="toggleSideBar()"><span class="navbar-toggler-icon"></span></button>
-<div class="navbar-app-section"><a href="">{{section}}</a></div>
+<div class="navbar-app-section"><a [href]="(fragment.length)?'#'+fragment:''">{{section}}</a></div>
 <ul class="nav navbar-nav d-md-down-none">
     <li class="nav-item px-3" *ngFor="let item of items"><a class="nav-link" (click)="onSelectItem(item)">{{(i18n && i18n[item.id])?i18n[item.id].label:item.label}}</a></li>
 </ul>
