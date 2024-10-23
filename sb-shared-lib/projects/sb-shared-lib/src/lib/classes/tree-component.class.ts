@@ -174,7 +174,9 @@ export class TreeComponent<I, T> implements TreeComponentInterface {
                     else {
                         // handle empty m2o fields
                         if(typeof this.instance[field] == 'object' && values[field] == null) {
-                            this.instance[field] = {};
+                            // #memo - doing so assigns an empty object to any field previously set to null (which might not be correct)
+                            // this.instance[field] = {};
+                            this.instance[field] = null;
                         }
                         else {
                             this.instance[field] = values[field];
