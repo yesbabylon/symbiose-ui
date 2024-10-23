@@ -26,8 +26,9 @@
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'validity-check'">
         <div class="validity-check-item" *ngFor="let item of object_checks_items">
-            <div style="display: flex; font-weight: 500;" [style]="'color: '+getAlertColor(item)" ><mat-icon style="margin-right: 10px;">{{getAlertIcon(item)}}</mat-icon> {{item.message_model_id.label}}</div>
-            <div style="font-size: 14px;">{{item.message_model_id.description}}</div>
+            <div style="display: flex; font-weight: 500;" [style]="'color: '+getAlertColor(item)" ><mat-icon style="margin-right: 10px;">{{getAlertIcon(item)}}</mat-icon> {{item.message_model_id?.label}}</div>
+            <div style="font-size: 11px; color: #8d8d8d;">{{getAlertTime(item)}}</div>
+            <div style="font-size: 14px;">{{item.message_model_id?.description}}</div>
             <div *ngIf="item.parsed_links.length" style="display: flex; overflow: hidden; align-items: center;"><mat-icon style="font-size: 22px;">visibility</mat-icon><a class="alert-link" *ngFor="let link of item.parsed_links" [attr.href]="link.link" target="_self">{{link.text}}</a></div>
             <div *ngIf="item.controller" style="margin-top: 10px;"><button mat-button (click)="onDismissAlert(item)">RÉESSAYER</button></div>
             <div *ngIf="!item.controller" style="margin-top: 10px;"><button mat-button (click)="onDismissAlert(item)">IGNORER</button></div>
@@ -47,7 +48,7 @@
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'object-history'">
 
         <div class="object-history-item" *ngFor="let change of latest_changes; let index = index" >
-            <div><strong>{{change.user_id.name}}</strong></div>
+            <div><strong>{{change.user_id?.name}}</strong></div>
             <div class="item-time"><span style="display: flex;"><i class="material-icons">{{(change.action == 'create')?'add_circle_outline':'update'}}</i>{{change.modified | date : 'EEE dd MMMM yyyy HH:mm'}}</span></div>
         </div>
 
@@ -65,6 +66,5 @@
             <button mat-stroked-button (click)="onDisconnect()"><mat-icon >logout</mat-icon> Se déconnecter</button>
         </div>
     </div>
-
 
 </div>
