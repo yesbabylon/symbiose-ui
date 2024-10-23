@@ -53,10 +53,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatTreeModule } from '@angular/material/tree';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TextFieldModule } from '@angular/cdk/text-field';
@@ -73,11 +75,11 @@ import { MarkdownModule } from 'ngx-markdown';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 const materialModules = [
-    MatDatepickerModule, MatNativeDateModule, MatRippleModule, MatCardModule, MatListModule, MatButtonModule, MatSidenavModule,  MatIconModule, MatToolbarModule,
+    MatDatepickerModule, MatNativeDateModule, MatRippleModule, MatCardModule, MatDividerModule, MatListModule, MatButtonModule, MatSidenavModule,  MatIconModule, MatToolbarModule,
     MatChipsModule, MatExpansionModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule, MatProgressSpinnerModule, MatSnackBarModule,
-    MatProgressBarModule, MatCheckboxModule, MatAutocompleteModule, MatMenuModule, MatBadgeModule, MatStepperModule, MatGridListModule, MatTreeModule, MatSlideToggleModule,
-    MatButtonToggleModule, MatPaginatorModule,
-    DragDropModule, TextFieldModule, MatDialogModule,
+    MatProgressBarModule, MatCheckboxModule, MatAutocompleteModule, MatMenuModule, MatBadgeModule, MatStepperModule, MatGridListModule, MatRadioModule, MatTreeModule, MatSlideToggleModule,
+    MatButtonToggleModule, MatPaginatorModule, MatDialogModule,
+    DragDropModule, TextFieldModule,
     NgxMaterialTimepickerModule
  ];
 
