@@ -74,10 +74,11 @@ export class ApiService {
             try {
                 const environment:any = await this.env.getEnv();
                 const response:any = await this.http.put<any>(environment.backend_url+'?do=model_create', {
-                    entity: entity,
-                    fields: JSON.stringify(fields),
-                    lang: (lang.length)?lang:environment.lang
-                }).toPromise();
+                        entity: entity,
+                        fields: JSON.stringify(fields),
+                        lang: (lang.length)?lang:environment.lang
+                    })
+                    .toPromise();
                 resolve(response);
             }
             catch(error) {
@@ -112,19 +113,20 @@ export class ApiService {
         let promise = new Promise(async (resolve, reject) => {
             const environment:any = await this.env.getEnv();
             this.http.get<any>(environment.backend_url+'?get=model_read', {params: {
-                    entity: entity,
-                    ids: JSON.stringify(ids),
-                    fields: JSON.stringify(fields),
-                    order: order,
-                    sort: sort,
-                    lang: (lang.length)?lang:environment.lang
-                }
-            }).subscribe(
-                data => {
-                    resolve(data);
-                },
-                error => reject(error)
-            );
+                        entity: entity,
+                        ids: JSON.stringify(ids),
+                        fields: JSON.stringify(fields),
+                        order: order,
+                        sort: sort,
+                        lang: (lang.length)?lang:environment.lang
+                    }
+                })
+                .subscribe(
+                    data => {
+                        resolve(data);
+                    },
+                    error => reject(error)
+                );
         });
 
         if(!this.cache.hasOwnProperty(hash)) {
@@ -150,12 +152,13 @@ export class ApiService {
             try {
                 const environment:any = await this.env.getEnv();
                 const response:any = await this.http.patch<any>(environment.backend_url+'?do=model_update', {
-                    entity: entity,
-                    ids: ids,
-                    fields: values,
-                    lang: (lang.length)?lang:environment.lang,
-                    force: force
-                }).toPromise();
+                        entity: entity,
+                        ids: ids,
+                        fields: values,
+                        lang: (lang.length)?lang:environment.lang,
+                        force: force
+                    })
+                    .toPromise();
                 resolve(response);
             }
             catch(error) {
