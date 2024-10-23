@@ -188,7 +188,8 @@ export class AppSideMenuComponent implements OnInit {
                 if(!object_id) {
                     this.object_routes_items = [];
                     // hide side menu
-                    this.updated.emit(false);
+                    // #memo - hysteresis control : we show but don't hide back
+                    // this.updated.emit(false);
                 }
                 else {
                     console.debug('AppSideMenuComponent: updated values', this.view_id, this.object_class, this.object_id);
@@ -345,7 +346,11 @@ export class AppSideMenuComponent implements OnInit {
                     }
 
                     // notify parent about if there are routes or not
-                    this.updated.emit(!!this.object_routes_items.length);
+                    // #memo - hysteresis control : we show but don't hide back
+                    if(this.object_routes_items.length > 0) {
+                        this.updated.emit(true);
+                    }
+
                 }
 
 
@@ -603,6 +608,22 @@ export class AppSideMenuComponent implements OnInit {
                 return 'report_gmailerrorred';
         }
         return 'info_outline';
+    }
+
+    public getAlertTime(alert: any) {
+
+        const date = new Date(alert.modified);
+
+        const options = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+
+        return date.toLocaleDateString(undefined, <Intl.DateTimeFormatOptions> options).replace(',', '');
     }
 
     public getAlertColor(alert:any) {
