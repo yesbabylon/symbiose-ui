@@ -15,6 +15,7 @@ export class HeaderComponent implements OnInit {
     @Input() items: any[];
     @Input() action: string;
     @Input() i18n: any;
+    @Input() fragment: string = '';
     @Output() select = new EventEmitter<any>();
     @Output() onAction = new EventEmitter<any>();
 
