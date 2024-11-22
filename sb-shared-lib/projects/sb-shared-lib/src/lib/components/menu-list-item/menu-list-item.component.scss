@@ -13,13 +13,6 @@
     .parent {
         box-sizing: border-box;
 
-        box-shadow:
-            1px 0px 0px 0px rgb(211, 211, 211),
-            0px 1px 0px 0px rgb(211, 211, 211),
-            1px 1px 0px 0px rgb(211, 211, 211),
-            1px 0px 0px 0px rgb(211, 211, 211) inset,
-            0px 1px 0px 0px rgb(211, 211, 211) inset;
-
         .children {
             padding-top: 5px;
             padding-bottom: 5px;
