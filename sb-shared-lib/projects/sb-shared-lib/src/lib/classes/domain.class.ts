@@ -114,7 +114,7 @@ export class Domain {
      * @param values
      * @returns Domain  Returns current instance with updated values.
      */
-    public parse(object: any = {}, user: any = {}) {
+    public parse(object: any = {}, user: any = {}, parent: any = {}, env: any = {}) {
         for(let clause of this.clauses) {
             for(let condition of clause.conditions) {
                 // adapt value according to its syntax ('user.' or 'object.')
@@ -154,6 +154,14 @@ export class Domain {
                 else if(typeof value === 'string' && value.indexOf('date.') == 0) {
                     value = (new DateReference(value)).getDate().toISOString();
                 }
+                else if(typeof value === 'string' && value.indexOf('env.') == 0) {
+                    let target = value.substring('env.'.length);
+                    if(!env || !env.hasOwnProperty(target)) {
+                        value = false;
+                        // continue;
+                    }
+                    value = env[target];
+                }
 
                 condition.value = value;
             }
@@ -168,22 +176,23 @@ export class Domain {
      * @param object
      * @returns boolean Return true if the object matches the domain, false otherwise.
      */
-    public evaluate(object: any) : boolean {
+    public evaluate(object: any, user: any = {}, parent: any = {}, env: any = {}): boolean {
+        console.debug('SharedLib - Domain::evaluate() - evaluating object', object, JSON.stringify(this.toArray()));
         let res = false;
         // parse any reference to object in conditions
-        this.parse(object);
+        this.parse(object, user, parent, env);
         // evaluate clauses (OR) and conditions (AND)
         for(let clause of this.clauses) {
             let c_res = true;
             for(let condition of clause.getConditions()) {
 
-                if(!object.hasOwnProperty(condition.operand)) {
-                    continue;
-                }
-
-                let operand = object[condition.operand];
+                let operand = condition.operand;
                 let operator = condition.operator;
                 let value = condition.value;
+
+                if(object.hasOwnProperty(condition.operand)) {
+                    operand = object[condition.operand];
+                }
 
                 let cc_res: boolean;
 
@@ -223,7 +232,7 @@ export class Domain {
                     cc_res = (value.indexOf(operand) == -1);
                 }
                 else {
-                    let c_condition = "( '" + operand + "' "+operator+" '" + value + "')";
+                    let c_condition = "( '" + operand + "' " + operator + " '" + value + "')";
 
                     cc_res = <boolean>eval(c_condition);
                 }
