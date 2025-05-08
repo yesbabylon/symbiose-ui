@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { catchError, map } from "rxjs/operators";
+import { catchError, filter, map, take } from "rxjs/operators";
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { EnvService} from './env.service';
+import { AuthService } from './auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import Domain from '../classes/domain.class';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +21,7 @@ export class ApiService {
     constructor(
         private http: HttpClient,
         private env:EnvService,
+        private auth: AuthService,
         private translate:TranslateService,
         private snack: MatSnackBar) {
             this.headers = new HttpHeaders();
@@ -35,7 +38,7 @@ export class ApiService {
             try {
                 const environment:any = await this.env.getEnv();
                 // make sure not to double the trailing slash
-                let url = environment.backend_url+route.replace(/^\//g, '');
+                let url = environment.backend_url + route.replace(/^\//g, '');
                 const response:any = await this.http.get<any>(url, {headers:this.headers, params: body}).toPromise();
                 resolve(response);
             }
@@ -318,38 +321,96 @@ export class ApiService {
         });
     }
 
-    public async getMenu(package_name: string, menu_id: string, lang: string = '') {
-        const environment:any = await this.env.getEnv();
+    private async processItems(items: any[]) {
+        let result: any[] = [];
 
-        let result:any = {
+        const env: any = await this.env.getEnv();
+        console.debug('API::getMenu', env);
+
+        // make sure to receive a first value for User
+        const user: any = await this.auth.getObservable().pipe(
+                filter(u => u != null),
+                take(1)
+            ).toPromise();
+
+        console.debug('API::getMenu', user);
+
+        for(const item of items) {
+            let visible = true;
+
+            if(item.hasOwnProperty('visible')) {
+                let array_domain = item.visible;
+
+                if(typeof array_domain === 'string') {
+                    try {
+                        array_domain = JSON.parse(array_domain);
+                    }
+                    catch(e) {
+                        console.warn('Invalid JSON in item.visible (parse error):', array_domain);
+                        visible = false;
+                    }
+                }
+
+                if(Array.isArray(array_domain)) {
+                    const domain = new Domain(array_domain);
+                    visible = domain.evaluate({}, user, {}, env);
+                }
+                else if(typeof array_domain !== 'undefined') {
+                    console.warn('Invalid domain format in item.visible:', array_domain);
+                    visible = false;
+                }
+            }
+
+            if(visible) {
+                const newItem = { ...item };
+                if(item.children && Array.isArray(item.children)) {
+                    newItem.children = await this.processItems(item.children);
+                    // skip parent with no children
+                    if(newItem.children.length === 0) {
+                        continue;
+                    }
+                }
+                result.push(newItem);
+            }
+        }
+        return result;
+    }
+
+
+    public async getMenu(package_name: string, menu_id: string, lang: string = '') {
+        console.debug('API::getMenu', package_name, menu_id, lang);
+
+        let result: any = {
             show_search: false,
-            item: [],
+            items: [],
             translation: {}
         };
 
         try {
-            const menu:any = await this.fetch('?get=model_menu&package='+package_name+'&menu_id='+menu_id);
+            const menu: any = await this.fetch('?get=model_menu&package=' + package_name + '&menu_id=' + menu_id);
             if(menu) {
                 if(menu.hasOwnProperty('search') && menu.search) {
                     result.show_search = true;
                 }
                 if(menu.hasOwnProperty('layout') && menu.layout.hasOwnProperty('items')) {
-                    result.items = menu.layout.items;
+                    // filter items by checking 'visible' property
+                    result.items = await this.processItems(menu.layout.items);
                 }
                 else {
-                    console.warn('invalid menu (missing layout): '+menu_id);
+                    console.warn('invalid menu (missing layout): ' + menu_id);
                 }
             }
             else {
-                console.warn('invalid or empty menu: '+menu_id);
+                console.warn('invalid or empty menu: ' + menu_id);
             }
         }
         catch(response) {
-            console.warn('no menu found for menu_id '+menu_id, response);
+            console.warn('no menu found for menu_id ' + menu_id, response);
         }
 
         try {
-            const menu_i18n = await this.fetch('?get=config_i18n-menu&package='+package_name+'&menu_id='+menu_id+'&lang='+environment.locale);
+            const env: any = await this.env.getEnv();
+            const menu_i18n = await this.fetch('?get=config_i18n-menu&package=' + package_name + '&menu_id='+menu_id + '&lang=' + env.locale);
             if(menu_i18n && menu_i18n.hasOwnProperty('view')) {
                 if(menu_i18n.view.hasOwnProperty('menu')) {
                     result.translation = menu_i18n.view.menu;
@@ -359,14 +420,15 @@ export class ApiService {
                 }
             }
             else {
-                console.info('invalid or translation for menu: '+menu_id);
+                console.info('invalid or translation for menu: ' + menu_id);
             }
             // #todo : do not inject but replace labels recursively
         }
         catch(response) {
-            console.log('no translation found for menu_id '+menu_id, response);
+            console.log('no translation found for menu_id ' + menu_id, response);
         }
 
+        console.debug('API::getMenu - result', result);
         return result;
     }
 
@@ -416,7 +478,7 @@ export class ApiService {
                         if(translated_error.length) {
                             msg = translated_error;
                         }
-                        this.snack.open(field+': '+msg, this.translate.instant('SB_ERROR_ERROR').toUpperCase());
+                        this.snack.open(field + ': ' + msg, this.translate.instant('SB_ERROR_ERROR').toUpperCase());
                         return;
                     }
                 }
