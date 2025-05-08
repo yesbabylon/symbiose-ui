@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     background-color: #fff;
-    border-bottom: 1px solid #c8ced3;
+    /*border-bottom: 1px solid #c8ced3;*/
     display: flex;
     flex: 1;
     flex-direction: row;
@@ -21,12 +21,12 @@
     line-height: 1;
     background-color: transparent;
     border: 1px solid transparent;
-    border-radius: .25rem;    
+    border-radius: .25rem;
     outline: 0;
 }
 
 
-.navbar-toggler-icon {    
+.navbar-toggler-icon {
     height: 23px;
     display: inline-block;
     width: 1.5em;
@@ -34,7 +34,7 @@
     content: "";
     background: no-repeat 50%;
     background-size: 100% 100%;
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%2373818f' stroke-width='2.25' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");    
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%2373818f' stroke-width='2.25' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
 .navbar-toggler:hover .navbar-toggler-icon {
@@ -138,5 +138,5 @@
 
 .navbar-date {
     display: block;
-    margin-left: none; 
+    margin-left: none;
 }

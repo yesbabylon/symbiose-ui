@@ -90,7 +90,7 @@ const angularModules = [
 const sharedComponents = [
     SharedLibComponent, LoaderComponent, HeaderComponent, FooterComponent, AppSideBarComponent, AppSideMenuComponent,
     DateSelectionComponent,
-    // @deprecated
+    // @deprecated (use Eq components instead)
     SbMany2OneSelectComponent, SbDialogConfirmDialog, SbDialogNotifyDialog,
     EqDateRangeComponent, EqDateTimeComponent, EqDateComponent, EqDialogConfirm, EqDialogNotify, EqM2oComponent, EqStringComponent, EqTextComponent,
     MenuListItemComponent,

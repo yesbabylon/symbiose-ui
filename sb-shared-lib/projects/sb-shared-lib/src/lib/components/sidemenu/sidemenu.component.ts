@@ -212,10 +212,10 @@ export class AppSideMenuComponent implements OnInit {
                         let view_name = 'default';
 
                         let parts = this.view_id.split('.');
-                        if(parts.length) view_type = <string>parts.shift();
-                        if(parts.length) view_name = <string>parts.shift();
+                        if(parts.length) view_type = <string> parts.shift();
+                        if(parts.length) view_name = <string> parts.shift();
 
-                        let view:any = await apiService.getView(this.object_class, view_type + '.' + view_name);
+                        let view: any = await apiService.getView(this.object_class, view_type + '.' + view_name);
 
                         if(!Object.keys(view).length) {
                             // fallback to default view
@@ -226,19 +226,19 @@ export class AppSideMenuComponent implements OnInit {
                         }
 
                         // load routes from view, if any
-                        if (view.hasOwnProperty('routes') && view.routes.length) {
+                        if(view.hasOwnProperty('routes') && view.routes.length) {
                             view_routes = view.routes;
 
-                            for (let route of view_routes) {
+                            for(let route of view_routes) {
                                 route.label = translationService.resolve(translation, 'view', [this.view_id, 'routes'], route.id, route.label)
-                                if (route.hasOwnProperty('visible')) {
+                                if(route.hasOwnProperty('visible')) {
                                     let domain = route.visible;
 
-                                    if (typeof domain == 'string') {
+                                    if(typeof domain == 'string') {
                                         domain = JSON.parse(domain);
                                     }
 
-                                    if (Array.isArray(domain) && domain.length) {
+                                    if(Array.isArray(domain) && domain.length) {
                                         // #todo - improve
                                         // get first part of domain as target field
                                         let object_field = domain[0];
@@ -249,7 +249,7 @@ export class AppSideMenuComponent implements OnInit {
 
                                     }
                                 }
-                                if (route.hasOwnProperty('route')) {
+                                if(route.hasOwnProperty('route')) {
                                     const parts = route.route.split('/');
                                     for (let part of parts) {
                                         if(part.indexOf('object.') >= 0) {
@@ -260,12 +260,12 @@ export class AppSideMenuComponent implements OnInit {
                                         }
                                     }
                                 }
-                                if (route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
+                                if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
                                     let domain = JSON.stringify(route.context.domain);
                                     let regexp = /object\.([^"]+)/g;
                                     let match = regexp.exec(domain);
 
-                                    while (match) {
+                                    while(match) {
                                         if (match.length && !object_fields.includes(match[1])) {
                                             object_fields.push(match[1]);
                                         }
@@ -275,7 +275,7 @@ export class AppSideMenuComponent implements OnInit {
                             }
                         }
                     }
-                    catch (err) {
+                    catch(err) {
                         console.warn(err);
                     }
 
@@ -287,50 +287,35 @@ export class AppSideMenuComponent implements OnInit {
                     await this.updateHistory();
 
                     // remove routes that are not part of the current view
+                    // #memo - this is for improving flicking, but it leads to ordering mix-ups and might be based on wrong object id for domains & visibility
+                    /*
                     for(let i = this.object_routes_items.length-1; i >= 0; --i) {
                         let id = this.object_routes_items[i].id;
                         if(!view_routes.find( (e:any) => e.id == id )) {
                             this.object_routes_items.splice(i, 1);
                         }
                     }
+                    */
+                   this.object_routes_items = [];
+
                     // build routes, if any
-                    for (let route of view_routes) {
-                        if (route.hasOwnProperty('visible')) {
-                            let domain = route.visible;
+                    for(let route of view_routes) {
+                        if(route.hasOwnProperty('visible')) {
+                            let visible: boolean = true;
+                            let array_domain = route.visible;
 
-                            //  #todo - improve
-                            let res = false;
-
-                            let operand = domain[0];
-                            let operator = domain[1];
-                            let value = domain[2];
-
-                            if (!this.object || !this.object.hasOwnProperty(operand)) continue;
-
-                            operand = this.object[operand];
-
-                            // handle special cases
-                            if (operator == '=') {
-                                operator = '==';
+                            if(typeof array_domain === 'string') {
+                                array_domain = JSON.parse(array_domain);
                             }
-                            else if (operator == '<>') {
-                                operator = '!=';
-                            }
-
-                            if (Array.isArray(value)) {
-                                if (operator == 'in') {
-                                    res = (value.indexOf(operand) > -1);
-                                }
-                                else if (operator == 'not in') {
-                                    res = (value.indexOf(operand) == -1);
-                                }
+                            if(!Array.isArray(array_domain)) {
+                                console.warn('Invalid JSON in route.visible:', array_domain);
                             }
                             else {
-                                let c_condition = "( '" + operand + "' " + operator + " '" + value + "')";
-                                res = < boolean > eval(c_condition);
+                                let domain = new Domain(array_domain);
+                                visible = domain.evaluate(this.object, this.user, {}, this.environment);
                             }
 
-                            if (!res) {
+                            if(!visible) {
                                 // remove route, if present
                                 let index:any = this.object_routes_items.findIndex( (e:any) => e.id == route.id );
                                 if(index >= 0) {
