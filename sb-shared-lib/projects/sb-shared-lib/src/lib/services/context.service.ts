@@ -95,13 +95,15 @@ export class ContextService {
         // listen to route changes and remember current route
         this.router.events.subscribe( (event: any) => {
             if (event instanceof NavigationEnd && event.url != this.route) {
-                console.debug('ContextService : route change', event);
+                console.debug('ContextService:: route change', event);
                 this.route = event.url;
                 // this.context = {};
                 // this.observable.next(this.getDescriptor());
                 this.observable.next({route: this.route, context: {}});
                 // if no controller requests a change within 500ms, change to current context
+                console.debug('ContextService:: route change - Scheduling auto change');
                 this.timeout = setTimeout( () => {
+                    console.debug('ContextService:: route change - Running auto change');
                     this.timeout = undefined;
                     this.change({context: this.context});
                 }, 500);
@@ -121,6 +123,7 @@ export class ContextService {
 
         // if a call is pending, abort it
         if(this.timeout) {
+            console.debug('ContextService::change - Voiding auto change');
             clearTimeout(this.timeout);
         }
 
