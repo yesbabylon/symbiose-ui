@@ -117,8 +117,8 @@ export class AppSideMenuComponent implements OnInit {
 
                 if (descriptor.context.hasOwnProperty('view')) {
                     const parts = descriptor.context.view.split('.');
-                    view_type = (parts.length > 0)?parts[0]:'list';
-                    view_name = (parts.length > 1)?parts[1]:'default';
+                    view_type = (parts.length > 0) ? parts[0] : 'list';
+                    view_name = (parts.length > 1) ? parts[1] : 'default';
                     view_id = view_type + '.' + view_name;
                 }
                 else {
@@ -132,7 +132,7 @@ export class AppSideMenuComponent implements OnInit {
 
                 if(view_type == 'form') {
                     // by convention the current object id, if present in route, is the latest numeric value (ex.: '/booking/13/contract/735')
-                    if (descriptor.hasOwnProperty('route')) {
+                    if(descriptor.hasOwnProperty('route')) {
                         // route is expected to hold the ID of the object as last part
                         const parts = descriptor.route.split('/');
                         for(let i = parts.length; i > 0; --i) {
@@ -145,7 +145,7 @@ export class AppSideMenuComponent implements OnInit {
                     }
 
                     // id in domain prevails over route
-                    if (descriptor.context.hasOwnProperty('domain')) {
+                    if(descriptor.context.hasOwnProperty('domain')) {
                         // domain is expected to hold a single ID condition (ex. ['id', '=', 3])
                         if(Array.isArray(descriptor.context.domain) && descriptor.context.domain.length) {
                             let domain = new Domain(descriptor.context.domain);
@@ -167,13 +167,13 @@ export class AppSideMenuComponent implements OnInit {
                 let object_class: string = descriptor.context.entity;
 
                 // check if we are showing a view for a specific entity but we want the actions to apply on another entity
-                if (descriptor.context.hasOwnProperty('target_entity')) {
+                if(descriptor.context.hasOwnProperty('target_entity')) {
                     object_class = descriptor.context.target_entity;
-                    if (descriptor.context.hasOwnProperty('target_view') || descriptor.context.hasOwnProperty('target_type') || descriptor.context.hasOwnProperty('target_name')) {
+                    if(descriptor.context.hasOwnProperty('target_view') || descriptor.context.hasOwnProperty('target_type') || descriptor.context.hasOwnProperty('target_name')) {
                         let view_type = (descriptor.context.hasOwnProperty('target_type')) ? descriptor.context.target_type : 'form';
                         let view_name = (descriptor.context.hasOwnProperty('target_name')) ? descriptor.context.target_name : 'default';
                         view_id = view_type + '.' + view_name;
-                        if (descriptor.context.hasOwnProperty('target_view')) {
+                        if(descriptor.context.hasOwnProperty('target_view')) {
                             view_id = descriptor.context.target_view;
                         }
                     }
@@ -184,158 +184,146 @@ export class AppSideMenuComponent implements OnInit {
                 this.object_id = object_id;
                 this.object_class = object_class;
 
-                // if(view_id != this.view_id || this.object_class != object_class || this.object_id != object_id) {
-                if(!object_id) {
-                    this.object_routes_items = [];
-                    // hide side menu
-                    // #memo - hysteresis control : we show but don't hide back
-                    // this.updated.emit(false);
-                }
-                else {
-                    console.debug('AppSideMenuComponent: updated values', this.view_id, this.object_class, this.object_id);
+                // #memo - hysteresis control : we show sidemenu but don't hide back
+                this.object_routes_items = [];
 
-                    let object_fields = ['id', 'name', 'state', 'created', 'modified', 'status', 'order'];
-                    let view_routes = [];
+                console.debug('AppSideMenuComponent: updated values', this.view_id, this.object_class, this.object_id);
 
-                    // load routes and look for references to object fields (to append those to the fields to load, `object_fields`)
-                    try {
+                let object_fields = ['id', 'name', 'state', 'created', 'modified', 'status', 'order'];
+                let view_routes = [];
 
-                        // request the schema of the view from eQ lib
+                // load routes and look for references to object fields (to append those to the fields to load, `object_fields`)
+                try {
 
-                        const apiService = this.eq.getApiService();
-                        const translationService = this.eq.getTranslationService();
+                    // request the schema of the view from eQ lib
+                    const apiService = this.eq.getApiService();
+                    const translationService = this.eq.getTranslationService();
 
-                        const translation:any = await apiService.getTranslation(this.object_class);
+                    const translation:any = await apiService.getTranslation(this.object_class);
 
-                        // fetch view, with fallback to default name of same type
-                        let view_type = 'form';
-                        let view_name = 'default';
+                    // fetch view, with fallback to default name of same type
+                    let view_type = 'form';
+                    let view_name = 'default';
 
-                        let parts = this.view_id.split('.');
-                        if(parts.length) view_type = <string> parts.shift();
-                        if(parts.length) view_name = <string> parts.shift();
+                    let parts = this.view_id.split('.');
+                    if(parts.length) {
+                        view_type = <string> parts.shift();
+                    }
+                    if(parts.length) {
+                        view_name = <string> parts.shift();
+                    }
 
-                        let view: any = await apiService.getView(this.object_class, view_type + '.' + view_name);
+                    let view: any = await apiService.getView(this.object_class, view_type + '.' + view_name);
 
+                    if(!Object.keys(view).length) {
+                        // fallback to default view
+                        view = await apiService.getView(this.object_class, view_type + '.default');
                         if(!Object.keys(view).length) {
-                            // fallback to default view
-                            view = await apiService.getView(this.object_class, view_type + '.default');
-                            if(!Object.keys(view).length) {
-                                throw 'unknown_view';
-                            }
+                            throw 'unknown_view';
                         }
+                    }
 
-                        // load routes from view, if any
-                        if(view.hasOwnProperty('routes') && view.routes.length) {
-                            view_routes = view.routes;
+                    // load routes from view, if any
+                    if(view.hasOwnProperty('routes') && view.routes.length) {
+                        view_routes = view.routes;
 
-                            for(let route of view_routes) {
-                                route.label = translationService.resolve(translation, 'view', [this.view_id, 'routes'], route.id, route.label)
-                                if(route.hasOwnProperty('visible')) {
-                                    let domain = route.visible;
+                        for(let route of view_routes) {
+                            route.label = translationService.resolve(translation, 'view', [this.view_id, 'routes'], route.id, route.label)
+                            if(route.hasOwnProperty('visible')) {
+                                let domain = route.visible;
 
-                                    if(typeof domain == 'string') {
-                                        domain = JSON.parse(domain);
+                                if(typeof domain == 'string') {
+                                    domain = JSON.parse(domain);
+                                }
+
+                                if(Array.isArray(domain) && domain.length) {
+                                    // #todo - improve
+                                    // get first part of domain as target field
+                                    let object_field = domain[0];
+
+                                    if(object_field.length && !object_fields.includes(object_field)) {
+                                        object_fields.push(object_field);
                                     }
-
-                                    if(Array.isArray(domain) && domain.length) {
-                                        // #todo - improve
-                                        // get first part of domain as target field
-                                        let object_field = domain[0];
-
-                                        if (object_field.length && !object_fields.includes(object_field)) {
+                                }
+                            }
+                            if(route.hasOwnProperty('route')) {
+                                const parts = route.route.split('/');
+                                for(let part of parts) {
+                                    if(part.indexOf('object.') >= 0) {
+                                        let object_field = part.replace('object.', '');
+                                        if(object_field.length && !object_fields.includes(object_field)) {
                                             object_fields.push(object_field);
                                         }
-
                                     }
                                 }
-                                if(route.hasOwnProperty('route')) {
-                                    const parts = route.route.split('/');
-                                    for (let part of parts) {
-                                        if(part.indexOf('object.') >= 0) {
-                                            let object_field = part.replace('object.', '');
-                                            if (object_field.length && !object_fields.includes(object_field)) {
-                                                object_fields.push(object_field);
-                                            }
-                                        }
-                                    }
-                                }
-                                if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
-                                    let domain = JSON.stringify(route.context.domain);
-                                    let regexp = /object\.([^"]+)/g;
-                                    let match = regexp.exec(domain);
+                            }
+                            if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
+                                let domain = JSON.stringify(route.context.domain);
+                                let regexp = /object\.([^"]+)/g;
+                                let match = regexp.exec(domain);
 
-                                    while(match) {
-                                        if (match.length && !object_fields.includes(match[1])) {
-                                            object_fields.push(match[1]);
-                                        }
-                                        match = regexp.exec(domain);
+                                while(match) {
+                                    if (match.length && !object_fields.includes(match[1])) {
+                                        object_fields.push(match[1]);
                                     }
+                                    match = regexp.exec(domain);
                                 }
                             }
                         }
                     }
-                    catch(err) {
-                        console.warn(err);
-                    }
+                }
+                catch(err) {
+                    console.warn(err);
+                }
+
+                // load object if an ID has been found
+                if(object_id) {
 
                     // read basic field of targeted object
-                    const data: any[] = < Array < any >> await this.api.read(object_class, [object_id], object_fields);
+                    const data: any[] = <Array <any>> await this.api.read(object_class, [object_id], object_fields);
                     this.object = data[0];
 
                     // 'history' : read modifications history
                     await this.updateHistory();
+                }
 
-                    // remove routes that are not part of the current view
-                    // #memo - this is for improving flicking, but it leads to ordering mix-ups and might be based on wrong object id for domains & visibility
-                    /*
-                    for(let i = this.object_routes_items.length-1; i >= 0; --i) {
-                        let id = this.object_routes_items[i].id;
-                        if(!view_routes.find( (e:any) => e.id == id )) {
-                            this.object_routes_items.splice(i, 1);
+                // build routes, if any
+                for(let route of view_routes) {
+                    if(route.hasOwnProperty('visible')) {
+                        let visible: boolean = true;
+                        let array_domain = route.visible;
+
+                        if(typeof array_domain === 'string') {
+                            array_domain = JSON.parse(array_domain);
+                        }
+                        if(!Array.isArray(array_domain)) {
+                            console.warn('Invalid JSON in route.visible:', array_domain);
+                        }
+                        else {
+                            let domain = new Domain(array_domain);
+                            visible = domain.evaluate(this.object ?? {}, this.user, {}, this.environment);
+                        }
+
+                        if(!visible) {
+                            // remove route, if present
+                            let index:any = this.object_routes_items.findIndex( (e:any) => e.id == route.id );
+                            if(index >= 0) {
+                                this.object_routes_items.splice(index, 1);
+                            }
+                            continue;
                         }
                     }
-                    */
-                   this.object_routes_items = [];
-
-                    // build routes, if any
-                    for(let route of view_routes) {
-                        if(route.hasOwnProperty('visible')) {
-                            let visible: boolean = true;
-                            let array_domain = route.visible;
-
-                            if(typeof array_domain === 'string') {
-                                array_domain = JSON.parse(array_domain);
-                            }
-                            if(!Array.isArray(array_domain)) {
-                                console.warn('Invalid JSON in route.visible:', array_domain);
-                            }
-                            else {
-                                let domain = new Domain(array_domain);
-                                visible = domain.evaluate(this.object, this.user, {}, this.environment);
-                            }
-
-                            if(!visible) {
-                                // remove route, if present
-                                let index:any = this.object_routes_items.findIndex( (e:any) => e.id == route.id );
-                                if(index >= 0) {
-                                    this.object_routes_items.splice(index, 1);
-                                }
-                                continue;
-                            }
-                        }
-                        // add route, if not present yet
-                        if(!this.object_routes_items.find( (e:any) => e.id == route.id )) {
-                            this.object_routes_items.push(route);
-                        }
+                    // add route, if not present yet
+                    if(!this.object_routes_items.find( (e:any) => e.id == route.id )) {
+                        this.object_routes_items.push(route);
                     }
+                }
 
-                    // notify parent about if there are routes or not
-                    // #memo - hysteresis control : we show but don't hide back
-                    if(this.object_routes_items.length > 0) {
-                        this.updated.emit(true);
-                    }
 
+                // notify parent in case of routes changes
+                // #memo - hysteresis control : we show but don't hide back
+                if(this.object_routes_items.length > 0) {
+                    this.updated.emit(true);
                 }
 
 
@@ -502,16 +490,15 @@ export class AppSideMenuComponent implements OnInit {
         }
     }
 
-
     public onObjectRoute(item: any) {
         console.debug('AppSideMenuComponent::onObjectRoute', item, this.view_id, this.object_class, this.object_id, this.object);
 
         let descriptor: any = {};
         let target_id:any = 0;
 
-        if (item.hasOwnProperty('route')) {
+        if(item.hasOwnProperty('route')) {
             let route = item.route;
-            for (let object_field of Object.keys(this.object)) {
+            for(let object_field of Object.keys(this.object)) {
                 target_id = this.object[object_field];
                 // handle m2o sub-objects (assuming id is always loaded)
                 if(typeof target_id == 'object' && target_id !== null && target_id.hasOwnProperty('id')) {
@@ -544,11 +531,11 @@ export class AppSideMenuComponent implements OnInit {
             return;
         }
 
-        if (item.hasOwnProperty('context')) {
+        if(item.hasOwnProperty('context')) {
             let context:any = {...item.context};
-            if (context.hasOwnProperty('domain') && Array.isArray(context.domain)) {
+            if(context.hasOwnProperty('domain') && Array.isArray(context.domain)) {
                 let domain = JSON.stringify(context.domain);
-                for (let object_field of Object.keys(this.object)) {
+                for(let object_field of Object.keys(this.object)) {
                     target_id = this.object[object_field];
                     // handle m2o sub-ojects (assuming id is always loaded)
                     if(typeof target_id == 'object' && target_id !== null && target_id.hasOwnProperty('id')) {
@@ -564,7 +551,7 @@ export class AppSideMenuComponent implements OnInit {
             descriptor.context = context;
         }
 
-        if (Object.keys(descriptor).length) {
+        if(Object.keys(descriptor).length) {
             this.context.change(descriptor);
         }
 
