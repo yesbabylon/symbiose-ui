@@ -180,6 +180,9 @@ export class ContextService {
                         dom_container = context.dom_container;
                     }
                     await this.eq.popup(context, dom_container);
+                    this.ready.next(true);
+                    // return without notifying subscribers to avoid updating sidemenu
+                    return;
                 }
                 else {
                     console.debug("requesting context opening", context);

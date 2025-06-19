@@ -47,9 +47,11 @@
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'object-history'">
 
-        <div class="object-history-item" *ngFor="let change of latest_changes; let index = index" >
+        <div *ngFor="let change of latest_changes; let index = index"
+                (click)="onclickHistoryItem(change)"
+                class="object-history-item">
             <div><strong>{{change.user_id?.name}}</strong></div>
-            <div class="item-time"><span style="display: flex;"><i class="material-icons">{{(change.action == 'create')?'add_circle_outline':'update'}}</i>{{change.modified | date : 'EEE dd MMMM yyyy HH:mm'}}</span></div>
+            <div class="item-time"><span style="display: flex;"><i class="material-icons">{{(change.action == 'create') ? 'add_circle_outline' : 'update'}}</i>{{change.modified | date : 'EEE dd MMMM yyyy HH:mm'}}</span></div>
         </div>
 
     </div>

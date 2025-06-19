@@ -107,8 +107,11 @@ export class AppSideMenuComponent implements OnInit {
             this.view_description = '';
             this.latest_changes = [];
 
-            if (descriptor.hasOwnProperty('context') && !descriptor.context_silent
-                && descriptor.context.entity && descriptor.context.entity.length) {
+            if(descriptor.hasOwnProperty('context')
+                && !(descriptor.context_silent ?? false)
+                && (descriptor.context.entity ?? '').length > 0
+                && ((descriptor.context.display_mode ?? 'view') !== 'popup')
+            ) {
 
                 console.debug('SideMenu::searching for context menu', descriptor.context);
 
@@ -241,32 +244,29 @@ export class AppSideMenuComponent implements OnInit {
                                     // get first part of domain as target field
                                     let object_field = domain[0];
 
-                                    if(object_field.length && !object_fields.includes(object_field)) {
+                                    if(object_field && object_field.length && !object_fields.includes(object_field)) {
                                         object_fields.push(object_field);
                                     }
                                 }
                             }
                             if(route.hasOwnProperty('route')) {
-                                const parts = route.route.split('/');
-                                for(let part of parts) {
-                                    if(part.indexOf('object.') >= 0) {
-                                        let object_field = part.replace('object.', '');
-                                        if(object_field.length && !object_fields.includes(object_field)) {
-                                            object_fields.push(object_field);
-                                        }
+                                const matches = route.route.match(/object\.\w+/g) || [];
+                                for(let m of matches) {
+                                    const field = m.split('.')[1];
+                                    if(!object_fields.includes(field)) {
+                                        object_fields.push(field);
                                     }
                                 }
                             }
-                            if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
-                                let domain = JSON.stringify(route.context.domain);
-                                let regexp = /object\.([^"]+)/g;
-                                let match = regexp.exec(domain);
 
-                                while(match) {
-                                    if (match.length && !object_fields.includes(match[1])) {
-                                        object_fields.push(match[1]);
+                            if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
+                                const domain = JSON.stringify(route.context.domain);
+                                const matches = domain.match(/object\.\w+/g) || [];
+                                for(let m of matches) {
+                                    const field = m.split('.')[1];
+                                    if(!object_fields.includes(field)) {
+                                        object_fields.push(field);
                                     }
-                                    match = regexp.exec(domain);
                                 }
                             }
                         }
@@ -350,13 +350,15 @@ export class AppSideMenuComponent implements OnInit {
 
     }
 
+    // #todo - issue - this can be called independently of context change (from eq service), so we cannot know if we are in a popup or not
     private async updateHistory() {
         try {
             // show only actions from users (no root/system)
             const collection = await this.api.collect('core\\Log', [
                     ['object_id', '=', this.object_id],
                     ['object_class', '=', this.object_class],
-                    ['user_id', '>', 1]
+                    // #memo - show system actions
+                    // ['user_id', '>', 1]
                 ], ['action', 'user_id.name'], 'id', 'desc', 0, 50);
             this.latest_changes = collection;
         }
@@ -365,7 +367,14 @@ export class AppSideMenuComponent implements OnInit {
         }
     }
 
+    // #todo - issue - this can be called independently of context change (from eq service), so we cannot know if we are in a popup or not
     private async updateAlerts() {
+        // #todo #temp - not the right place for this (too late)
+        let descriptor: any = this.context.getDescriptor();
+        if((descriptor.context.display_mode ?? 'view') === 'popup') {
+            return;
+        }
+
         if(this.object_class.length == 0 || this.object_id == 0) {
             this.object_checks_items = [];
             return;
@@ -429,8 +438,6 @@ export class AppSideMenuComponent implements OnInit {
     }
 
     public onUserSettings() {
-        // this.router.navigate(['']);
-
         let user_entity = "core\\User";
         if(this.environment.hasOwnProperty('user_entity')) {
             user_entity = this.environment.user_entity;
@@ -447,7 +454,23 @@ export class AppSideMenuComponent implements OnInit {
             }
         };
 
-        // this.router.navigate(['/']);
+        this.context.change(descriptor);
+    }
+
+    public onclickHistoryItem(change: any) {
+
+        let descriptor = {
+            context: {
+                entity: "core\\Log",
+                type: 'form',
+                name: 'default',
+                domain: ['id', '=', change.id],
+                mode: 'view',
+                purpose: 'view',
+                display_mode: 'popup'
+            }
+        };
+
         this.context.change(descriptor);
     }
 
