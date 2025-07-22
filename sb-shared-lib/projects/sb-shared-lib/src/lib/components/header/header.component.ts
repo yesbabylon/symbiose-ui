@@ -99,8 +99,23 @@ export class HeaderComponent implements OnInit {
         this.onAction.emit();
     }
 
-    public onSelectItem(item:any) {
+    public onMouseDownItem(event: MouseEvent, item: any): void {
+        if((event.ctrlKey || event.metaKey) && item.hasOwnProperty('route')) {
+            const base = window.location.origin;
+            const url = new URL(item.route, base);
+
+            window.open(url.href, '_blank');
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    public onClickItem(event: MouseEvent, item: any) {
         console.debug('HeaderComponent::onclick', item);
+        if(event.ctrlKey || event.metaKey) {
+            // ctrl/cmd + click = request for opening link in new tab
+            return;
+        }
         this.select.emit(item);
     }
 }

@@ -3,7 +3,11 @@
 <button type="button" class="navbar-toggler" (click)="toggleSideBar()"><span class="navbar-toggler-icon"></span></button>
 <div class="navbar-app-section"><a [href]="(fragment.length)?'#'+fragment:''">{{section}}</a></div>
 <ul class="nav navbar-nav d-md-down-none">
-    <li class="nav-item px-3" *ngFor="let item of items"><a class="nav-link" (click)="onSelectItem(item)">{{(i18n && i18n[item.id])?i18n[item.id].label:item.label}}</a></li>
+    <li class="nav-item px-3" *ngFor="let item of items">
+        <a class="nav-link"
+            (mousedown)="onMouseDownItem($event, item)"
+            (click)="onClickItem($event, item)">{{(i18n && i18n[item.id]) ? i18n[item.id].label: item.label}}</a>
+    </li>
 </ul>
 <button class="navbar-action" mat-raised-button color="accent" (click)="doAction()">{{action}}</button>
 <div class="nav navbar-date">{{date | date: 'fullDate' }}</div>
