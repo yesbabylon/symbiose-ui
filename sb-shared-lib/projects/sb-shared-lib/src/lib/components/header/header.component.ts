@@ -100,11 +100,16 @@ export class HeaderComponent implements OnInit {
     }
 
     public onMouseDownItem(event: MouseEvent, item: any): void {
-        if((event.ctrlKey || event.metaKey) && item.hasOwnProperty('route')) {
-            const base = window.location.origin;
-            const url = new URL(item.route, base);
+        if((event.ctrlKey || event.metaKey) && item.hasOwnProperty('route') && typeof item.route === 'string') {
+            const origin = window.location.origin;
+            // remove trailing slashes
+            const base = window.location.pathname.replace(/\/+$/, '');
+            // remove starting slashes
+            const route = item.route.replace(/^\/+/, '');
 
-            window.open(url.href, '_blank');
+            const url = `${origin}${base}/#/${route}`;
+
+            window.open(url, '_blank');
             event.preventDefault();
             event.stopPropagation();
         }
