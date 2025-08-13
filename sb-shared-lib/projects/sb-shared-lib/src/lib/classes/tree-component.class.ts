@@ -162,7 +162,10 @@ export class TreeComponent<I, T> implements TreeComponentInterface {
     /**
      * Update local-model from raw object, and relay to sub-components, if any.
      */
-    public update(values:any) {
+    public update(values: any) {
+        if(!values) {
+            return;
+        }
         for(let field of Object.keys(this.instance)) {
             if(values.hasOwnProperty(field)) {
                 // update local-model for simple fields
