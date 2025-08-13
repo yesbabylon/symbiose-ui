@@ -232,23 +232,30 @@ export class AppSideMenuComponent implements OnInit {
 
                         for(let route of view_routes) {
                             route.label = translationService.resolve(translation, 'view', [this.view_id, 'routes'], route.id, route.label)
-                            if(route.hasOwnProperty('visible')) {
-                                let domain = route.visible;
 
-                                if(typeof domain == 'string') {
-                                    domain = JSON.parse(domain);
+                            // retrieve fields from visibility domain, if any
+                            if(route.hasOwnProperty('visible')) {
+                                let visibleDomain = route.visible;
+
+                                if(typeof visibleDomain == 'string') {
+                                    visibleDomain = JSON.parse(visibleDomain);
                                 }
 
-                                if(Array.isArray(domain) && domain.length) {
-                                    // #todo - improve
+                                if(Array.isArray(visibleDomain) && visibleDomain.length) {
+                                    const domain = new Domain(visibleDomain);
                                     // get first part of domain as target field
-                                    let object_field = domain[0];
-
-                                    if(object_field && object_field.length && !object_fields.includes(object_field)) {
-                                        object_fields.push(object_field);
+                                    for(let clause of domain.getClauses()) {
+                                        for(let condition of clause.getConditions()) {
+                                            let object_field = condition.getOperand();
+                                            if(!object_fields.includes(object_field)) {
+                                                object_fields.push(object_field);
+                                            }
+                                        }
                                     }
                                 }
                             }
+
+                            // retrieve fields from route
                             if(route.hasOwnProperty('route')) {
                                 const matches = route.route.match(/object\.\w+/g) || [];
                                 for(let m of matches) {
@@ -259,6 +266,7 @@ export class AppSideMenuComponent implements OnInit {
                                 }
                             }
 
+                            // retrieve fields from context
                             if(route.hasOwnProperty('context') && route.context.hasOwnProperty('domain')) {
                                 const domain = JSON.stringify(route.context.domain);
                                 const matches = domain.match(/object\.\w+/g) || [];
