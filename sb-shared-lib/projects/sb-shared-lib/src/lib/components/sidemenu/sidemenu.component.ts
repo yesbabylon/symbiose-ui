@@ -507,8 +507,8 @@ export class AppSideMenuComponent implements OnInit {
                             for (let key of Object.keys(response.error.errors)) {
                                 let msg_id = response.error.errors[key];
                                 this.object_checks_result.content.push({
-                                type: 'message',
-                                message: this.translate.instant(msg_id)
+                                    type: 'message',
+                                    message: this.translate.instant(msg_id)
                                 });
                             }
                         }
