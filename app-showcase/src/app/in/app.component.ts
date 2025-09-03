@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Showcase, Component as ComponentShowcase } from '../_types/showcaseType';
 
+// #memo - this files needs to be generated using `npm run generate-file-list`
 import { showcases } from '../../showcases';
 
 @Component({
