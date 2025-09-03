@@ -1,93 +1,92 @@
-<div
-	#eqDate
-	class="eq-date"
-	[class]="mode + ' ' + appearance + ' ' + size"
-	[class.cursor]="mode === 'edit' && !disabled"
-	[style.padding-right.px]="is_active ? 0 : 80"
-	(click)="activate()"
->
+<div    #eqDate
+        class="eq-date"
+        [class]="mode + ' ' + appearance + ' ' + size"
+        [class.cursor]="mode === 'edit' && !disabled"
+        [style.padding-right.px]="is_active ? 0 : 80"
+        (click)="activate()">
+
+    <!-- view mode -->
     <span class="text" [class.is-null]="is_null" [class]="size" *ngIf="mode === 'view'">
-            <span>{{ formatDate() }}</span>
+        <span>{{ formatDate() }}</span>
     </span>
-	<mat-form-field *ngIf="mode === 'edit'"
-					[class.disabled]="disabled"
-					[appearance]="appearance">
-		<mat-label *ngIf="title && mode === 'edit'">{{ title }}</mat-label>
 
-		<input
-			*ngIf="!is_null"
-			#input
-			matInput
-			[matDatepicker]="datePicker"
-			[disabled]="disabled"
-			[formControl]="formControl"
-			[placeholder]="mode === 'edit' ? placeholder: ''"
-			(blur)="onBlur($event)"
-		>
-		<input
-			#nullableInput
-			*ngIf="is_null"
-			matInput
-			[class.is_null]="is_null"
-			[disabled]="disabled"
-			[formControl]="formControl"
-			[placeholder]="mode === 'edit' ? placeholder: ''"
-		>
+    <!-- edit mode -->
+    <mat-form-field *ngIf="mode === 'edit'"
+                    [class.disabled]="disabled"
+                    [appearance]="appearance">
 
-		<mat-hint *ngIf="!formControl.invalid" [title]="hint">{{ hint }}</mat-hint>
+        <mat-label *ngIf="title && mode === 'edit'">{{ title }}</mat-label>
 
-		<mat-datepicker-toggle [style.visibility]="is_active && formControl.value !== '[null]' ? 'visible' : 'hidden'"
-							   matSuffix
-							   [for]="datePicker"></mat-datepicker-toggle>
-		<button
-			*ngIf="is_active && !is_null && inputValue !== undefined && inputValue.length > 0"
-			mat-icon-button
-			matSuffix
-			(click)="onClear($event)"
-		>
-			<mat-icon>close</mat-icon>
-		</button>
-		<button
-			*ngIf="!disabled && nullable && !is_null && formControl.value === ''"
-			color="accent"
-			mat-icon-button
-			matSuffix
-			(click)="toggleIsNull(true)"
-		>
-			<mat-icon>toggle_off</mat-icon>
-		</button>
-		<button
-			*ngIf="!disabled && nullable && is_null && formControl.value === '[null]'"
-			mat-icon-button
-			matSuffix
-			(click)="toggleIsNull(false)"
-		>
-			<mat-icon>toggle_on</mat-icon>
-		</button>
-		<ng-container *ngIf="isHandset$ | async as isHandset">
-			<mat-datepicker [touchUi]="isHandset.matches" #datePicker></mat-datepicker>
-		</ng-container>
-		<mat-error *ngIf="formControl.invalid">{{ getErrorMessage() }}</mat-error>
-	</mat-form-field>
-	<button
-		mat-icon-button
-		class="action"
-		color="primary"
-		*ngIf="is_active && !disabled && mode === 'edit'"
-		[disabled]="formControl.invalid || nullableInput && ![null, '[null]'].includes(nullableInput.nativeElement.value) || formControl.value === ''"
-		(click)="onSave($event)"
-		[style.visibility]="is_active && value !== '[null]' ? 'visible' : 'hidden'"
-	>
-		<mat-icon>check_small</mat-icon>
-	</button>
-	<button
-		mat-icon-button
-		class="action"
-		color="accent"
-		*ngIf="is_active && !disabled && mode === 'edit'"
-		(click)="onCancel($event)"
-		[style.visibility]="is_active && value !== '[null]' ? 'visible' : 'hidden'"
-	>
-		<mat-icon>cancel</mat-icon>
-	</button>
+        <input
+            *ngIf="!is_null"
+            #input
+            matInput
+            [matDatepicker]="datePicker"
+            [disabled]="disabled"
+            [formControl]="formControl"
+            [placeholder]="mode === 'edit' ? placeholder: ''"
+            (blur)="onBlur($event)">
+
+        <input
+            #nullableInput
+            *ngIf="is_null"
+            matInput
+            [class.is_null]="is_null"
+            [disabled]="disabled"
+            [formControl]="formControl"
+            [placeholder]="mode === 'edit' ? placeholder: ''">
+
+        <mat-hint *ngIf="!formControl.invalid" [title]="hint">{{ hint }}</mat-hint>
+
+        <mat-datepicker-toggle [style.visibility]="is_active && formControl.value !== '[null]' ? 'visible' : 'hidden'"
+                               matSuffix
+                               [for]="datePicker"></mat-datepicker-toggle>
+
+        <button *ngIf="is_active && !is_null && inputValue !== undefined && inputValue.length > 0"
+                mat-icon-button
+                matSuffix
+                (click)="onClear($event)">
+            <mat-icon>close</mat-icon>
+        </button>
+
+        <button *ngIf="!disabled && nullable && !is_null && formControl.value === ''"
+                color="accent"
+                mat-icon-button
+                matSuffix
+                (click)="toggleIsNull(true)">
+            <mat-icon>toggle_off</mat-icon>
+        </button>
+
+        <button *ngIf="!disabled && nullable && is_null && formControl.value === '[null]'"
+                mat-icon-button
+                matSuffix
+                (click)="toggleIsNull(false)">
+            <mat-icon>toggle_on</mat-icon>
+        </button>
+
+        <ng-container *ngIf="isHandset$ | async as isHandset">
+            <mat-datepicker [touchUi]="isHandset.matches" #datePicker></mat-datepicker>
+        </ng-container>
+
+        <mat-error *ngIf="formControl.invalid">{{ getErrorMessage() }}</mat-error>
+    </mat-form-field>
+    <button
+            mat-icon-button
+            class="action"
+            color="primary"
+            *ngIf="is_active && !disabled && mode === 'edit'"
+            [disabled]="formControl.invalid || nullableInput && ![null, '[null]'].includes(nullableInput.nativeElement.value) || formControl.value === ''"
+            (click)="onSave($event)"
+            [style.visibility]="is_active && value !== '[null]' ? 'visible' : 'hidden'">
+        <mat-icon>check_small</mat-icon>
+    </button>
+    <button
+            mat-icon-button
+            class="action"
+            color="accent"
+            *ngIf="is_active && !disabled && mode === 'edit'"
+            (click)="onCancel($event)"
+            [style.visibility]="is_active && value !== '[null]' ? 'visible' : 'hidden'">
+        <mat-icon>cancel</mat-icon>
+    </button>
 </div>

@@ -1,99 +1,82 @@
-<div
-	#eqM2o
-	class="eq-m2o"
-	[class]="mode + ' ' + appearance + ' ' + size"
-	[class.focused]="isFocused || is_active"
-	[class.view]="mode === 'view'"
->
-	<!-- view mode -->
-	<span *ngIf="mode === 'view'"
-		  class="text"
-		  [class.is_null]="is_null"
-		  [class]="size">
+<div    #eqM2o
+        class="eq-m2o"
+        [class]="mode + ' ' + appearance + ' ' + size"
+        [class.focused]="isFocused || is_active"
+        [class.view]="mode === 'view'">
+
+    <!-- view mode -->
+    <span *ngIf="mode === 'view'"
+          class="text"
+          [class.is_null]="is_null"
+          [class]="size">
         <span *ngIf="initialSelectedItem">{{ initialSelectedItem?.name }}</span>
         <span *ngIf="!initialSelectedItem" style="font-style: italic;">[no value]</span>
         <div *ngIf="hint_always" class="hint" title="{{hint}}">{{ hint }}</div>
     </span>
 
-	<!-- edit mode -->
-	<ng-container *ngIf="mode === 'edit'">
-		<mat-form-field
-			(click)="mode === 'edit' && activate()"
-			[appearance]="appearance"
-		>
-			<mat-label *ngIf="title">{{ title }}</mat-label>
-			<input #inputControl
-				   matInput
-				   type="text"
-				   [class]="size"
-				   [class.is_null]="is_null && nullable && formControl.value === '[null]'"
-				   [formControl]="formControl"
-				   [matAutocomplete]="inputAutocomplete"
-				   [disabled]="disabled ?? false"
-				   [readonly]="disabled ?? false"
-				   (focus)="onFocus()"
-				   (focusout)="onFocusOut()"
-				   (blur)="onBlur($event)"
-				   [placeholder]="placeholder"
-			/>
+    <!-- edit mode -->
 
-			<button class="suffix-action"
-					*ngIf="is_active && inputControl.value.length && inputControl.value !== '[null]'"
-					matSuffix
-					mat-icon-button
-					aria-label="Clear" (click)="onClear()">
-				<mat-icon>close</mat-icon>
-			</button>
-			<button
-				*ngIf="nullable && !is_null && formControl.value?.length === 0"
-				color="accent"
-				mat-icon-button
-				matSuffix
-				(click)="toggleIsNull(true)">
-				<mat-icon>toggle_off</mat-icon>
-			</button>
-			<button
-				*ngIf="nullable && is_null && is_active"
-				mat-icon-button
-				matSuffix
-				(click)="toggleIsNull(false)">
-				<mat-icon>toggle_on</mat-icon>
-			</button>
+    <mat-form-field *ngIf="mode === 'edit'"
+                    (click)="mode === 'edit' && activate()"
+                    [appearance]="appearance">
 
-			<mat-autocomplete
-				#inputAutocomplete="matAutocomplete"
-				(blur)="onBlur($event)"
-				[displayWith]="itemDisplay"
-				(optionSelected)="onSelect($event)"
-				(closed)="oncloseAutocomplete()"
-				[panelWidth]="panelWidth">
-				<div *ngIf="resultList | async; let list">
-					<mat-option *ngFor="let item of list" [value]="item" [title]="item.name">
-						{{ itemDisplay(item) }}
-					</mat-option>
-					<mat-option *ngIf="list.length === 0"><i>{{ noResult }}</i></mat-option>
-				</div>
-			</mat-autocomplete>
-			<mat-hint [align]="'start'" style="opacity: 1">
-				<span>{{ hint }}</span>
-			</mat-hint>
-		</mat-form-field>
-		<button
-			*ngIf="mode === 'edit' && is_active"
-			mat-icon-button
-			class="action"
-			color="primary"
-			[disabled]="formControl.invalid || (!nullable && !is_null) || inputControl.value === ''"
-			(click)="onSave($event)">
-			<mat-icon>check_small</mat-icon>
-		</button>
-		<button
-			*ngIf="mode === 'edit' && is_active"
-			mat-icon-button
-			class="action"
-			color="accent"
-			(click)="onCancel($event)">
-			<mat-icon>cancel</mat-icon>
-		</button>
-	</ng-container>
+        <mat-label *ngIf="title">{{ title }}</mat-label>
+
+        <input #inputControl
+                matInput
+                type="text"
+                [class]="size"
+                [class.is_null]="is_null && nullable"
+                [formControl]="formControl"
+                [matAutocomplete]="inputAutocomplete"
+                [disabled]="disabled ?? false"
+                [readonly]="disabled ?? false"
+                (focus)="onFocus()"
+                (focusout)="onFocusOut()"
+                (blur)="onBlur($event)"
+                [placeholder]="placeholder" />
+
+        <button class="suffix-action"
+                *ngIf="nullable && is_active && !is_null"
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                (click)="onClear()">
+            <mat-icon>close</mat-icon>
+        </button>
+
+        <mat-autocomplete
+            #inputAutocomplete="matAutocomplete"
+            (blur)="onBlur($event)"
+            [displayWith]="itemDisplay"
+            (optionSelected)="onSelect($event)"
+            (closed)="oncloseAutocomplete()"
+            [panelWidth]="panelWidth">
+            <div *ngIf="resultList | async; let list">
+                <mat-option *ngFor="let item of list" [value]="item" [title]="item.name">
+                    {{ itemDisplay(item) }}
+                </mat-option>
+                <mat-option *ngIf="list.length === 0"><i>{{ noResult }}</i></mat-option>
+            </div>
+        </mat-autocomplete>
+        <mat-hint [align]="'start'" style="opacity: 1">
+            <span>{{ hint }}</span>
+        </mat-hint>
+    </mat-form-field>
+    <button *ngIf="mode === 'edit' && is_active"
+            mat-icon-button
+            class="action"
+            color="primary"
+            [disabled]="formControl.invalid || (!nullable && is_null)"
+            (click)="onSave($event)">
+        <mat-icon>check_small</mat-icon>
+    </button>
+    <button *ngIf="mode === 'edit' && is_active"
+            mat-icon-button
+            class="action"
+            color="accent"
+            (click)="onCancel($event)">
+        <mat-icon>cancel</mat-icon>
+    </button>
+
 </div>
