@@ -1,9 +1,9 @@
-import { Component, OnInit, AfterViewInit, OnChanges, Output, Input, ElementRef, EventEmitter, SimpleChanges, SimpleChange, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnChanges, Output, Input, ElementRef, EventEmitter, SimpleChanges, SimpleChange, ViewChild, OnDestroy } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import {MatAutocomplete} from '@angular/material/autocomplete';
+import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 
-import { Observable, ReplaySubject } from 'rxjs';
-import { map, mergeMap, debounceTime, startWith } from 'rxjs/operators';
+import { fromEvent, Observable, ReplaySubject, Subject } from 'rxjs';
+import { map, mergeMap, debounceTime, startWith, takeUntil } from 'rxjs/operators';
 
 import { ApiService } from '../../services/api.service';
 import { Condition, Domain } from '../../classes/domain.class';
@@ -14,7 +14,7 @@ import { splitAtColon } from '@angular/compiler/src/util';
   templateUrl: './sb-m2o-select.component.html',
   styleUrls: ['./sb-m2o-select.component.scss']
 })
-export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewInit {
+export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     // full name of the entity to load
     @Input() entity: string = '';
     // id of the object to load as preset value
@@ -33,7 +33,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
     @Input() placeholder?: string = '';
     // specific hint/helper for the widget
     @Input() hint?: string = '';
-    // specific hint/helper for the widget
+    // flag for giving the focus to native input element
     @Input() autofocus?: boolean = false;
     // message to display in case no match was found
     @Input() noResult?: string = '';
@@ -43,12 +43,18 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
     @Input() displayWith?: (a:any) => string;
     // css value for panel width (dropdown)
     @Input() panelWidth?: string = 'auto';
+    // load a first batch of possible choice when giving focus to component
+    @Input() preloadOnFocus?: boolean = false;
 
-    @Output() itemSelected:EventEmitter<number> = new EventEmitter<number>();
-    @Output() blur:EventEmitter<any> = new EventEmitter();
+    @Output() itemSelected: EventEmitter<number> = new EventEmitter<number>();
+    @Output() blur: EventEmitter<any> = new EventEmitter();
 
     @ViewChild('inputControl') inputControl: ElementRef;
     @ViewChild('inputAutocomplete') inputAutocomplete: MatAutocomplete;
+    @ViewChild(MatAutocompleteTrigger) trigger!: MatAutocompleteTrigger;
+
+    private destroy$ = new Subject<void>();
+
     // currently selected item
     public item: any = null;
 
@@ -66,6 +72,22 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
         if(!this.disabled && this.autofocus) {
             setTimeout( () => this.inputControl.nativeElement.focus() );
         }
+
+        const sync = () => {
+            const el = this.inputControl?.nativeElement;
+            if(!el) {
+                return;
+            }
+            if(this.panelWidth === 'auto') {
+                this.panelWidth = el.getBoundingClientRect().width;
+                this.trigger?.updatePosition();
+            }
+        };
+
+        // initial + on resize
+        fromEvent(window, 'resize')
+            .pipe(startWith(0), takeUntil(this.destroy$))
+            .subscribe(sync);
     }
 
     ngOnInit(): void {
@@ -80,17 +102,21 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
         // update autocomplete result list
         this.resultList = this.inputQuery.pipe(
             debounceTime(300),
-            map( (value:any) => (typeof value === 'string' ? value : ( (value == null)?'':value.name ) )),
+            map( (value:any) => (typeof value === 'string' ? value : ( (value == null) ? '' : value.name ) )),
             mergeMap( async (name:string) => await this.filterResults(name) )
         );
-
     }
 
-  /**
-   * Update component based on changes received from parent.
-   *
-   * @param changes
-   */
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    /**
+     * Update component based on changes received from parent.
+     *
+     * @param changes
+     */
     ngOnChanges(changes: SimpleChanges) {
         let has_changed = false;
 
@@ -119,10 +145,10 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
     }
 
 
-  /**
-   * Load initial values, based on inputs assigned by parent component.
-   *
-   */
+    /**
+     * Load initial values, based on inputs assigned by parent component.
+     *
+     */
     private async load() {
         if(this.id && this.id > 0 && this.entity && this.entity.length) {
             try {
@@ -139,7 +165,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
     }
 
     private async filterResults(name: string) {
-        let filtered:any[] = [];
+        let filtered: any[] = [];
         if(this.entity.length && (!this.item || this.item.name != name) ) {
             try {
                 let tmpDomain = new Domain([]);
@@ -179,7 +205,9 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
     }
 
     public itemDisplay = (item:any): string => {
-        if(!item) return '';
+        if(!item) {
+            return '';
+        }
         if(this.displayWith) {
             return this.displayWith(item);
         }
@@ -196,7 +224,9 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
 
     public onFocus() {
         // force triggering a list refresh
-        this.inputFormControl.setValue('');
+        if(this.preloadOnFocus && !this.inputFormControl.value) {
+            this.inputFormControl.setValue('');
+        }
     }
 
     public onReset() {

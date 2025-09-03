@@ -27,20 +27,20 @@
             (blur)="onBlur()"
             placeholder="{{placeholder}}" />
     <button class="suffix-action" [class.hidden]="!inputFormControl.value" mat-button matSuffix mat-icon-button aria-label="Clear" (click)="onReset()">
-      <mat-icon>close</mat-icon>
+        <mat-icon>close</mat-icon>
     </button>
     <mat-autocomplete
-        #inputAutocomplete="matAutocomplete"
-        [displayWith]="itemDisplay"
-        (optionSelected)="onChange($event)"
-        (closed)="oncloseAutocomplete()"
-        [panelWidth]="panelWidth">
-      <div *ngIf="resultList | async; let list">
-        <mat-option *ngFor="let item of list" [value]="item" [title]="item.name">
-        {{itemDisplay(item)}}
-        </mat-option>
-        <mat-option *ngIf="list.length == 0"><i>{{noResult}}</i></mat-option>
-      </div>
+            #inputAutocomplete="matAutocomplete"
+            [displayWith]="itemDisplay"
+            (optionSelected)="onChange($event)"
+            (closed)="oncloseAutocomplete()"
+            [panelWidth]="panelWidth">
+        <div *ngIf="resultList | async; let list">
+            <mat-option *ngFor="let item of list" [value]="item" [title]="item.name">
+                {{itemDisplay(item)}}
+            </mat-option>
+            <mat-option *ngIf="list.length == 0"><i>{{noResult}}</i></mat-option>
+        </div>
     </mat-autocomplete>
     <mat-hint [align]="'start'" style="opacity: 1">
       <span>{{hint}}</span>
