@@ -126,18 +126,21 @@ export class Domain {
                 let value = condition.value;
 
                 // handle object references as `value` part
-                if (typeof value === 'string' && value.indexOf('object.') == 0) {
+                if(typeof value === 'string' && value.indexOf('object.') == 0) {
                     let target = value.substring('object.'.length);
-                    if (!object || !object.hasOwnProperty(target)) {
+                    if(!object || !object.hasOwnProperty(target)) {
                         continue;
                     }
                     let tmp = object[target];
                     // target points to an object with subfields
-                    if (typeof tmp === 'object' && !Array.isArray(tmp)) {
-                        if (tmp.hasOwnProperty('id')) {
+                    if(typeof tmp === 'object' && !Array.isArray(tmp)) {
+                        if(tmp === null) {
+                            value = 'null';
+                        }
+                        else if(tmp.hasOwnProperty('id')) {
                             value = tmp.id;
                         }
-                        else if (tmp.hasOwnProperty('name')) {
+                        else if(tmp.hasOwnProperty('name')) {
                             value = tmp.name;
                         }
                         else {
@@ -325,11 +328,11 @@ export class Reference {
             if (object && object.hasOwnProperty(target)) {
                 let tmp = object[target];
                 // target points to an object with subfields
-                if (typeof tmp === 'object' && !Array.isArray(tmp)) {
-                    if (tmp.hasOwnProperty('id')) {
+                if(tmp && typeof tmp === 'object' && !Array.isArray(tmp)) {
+                    if(tmp.hasOwnProperty('id')) {
                         result = tmp.id;
                     }
-                    else if (tmp.hasOwnProperty('name')) {
+                    else if(tmp.hasOwnProperty('name')) {
                         result = tmp.name;
                     }
                 }

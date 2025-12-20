@@ -73,7 +73,7 @@ export class AppSideMenuComponent implements OnInit {
         private translate: TranslateService
     ) {}
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
 
         (async () => {
             this.environment = await this.env.getEnv();
@@ -147,7 +147,7 @@ export class AppSideMenuComponent implements OnInit {
                         }
                     }
 
-                    // id in domain prevails over route
+                    // `id` in domain prevails over route
                     if(descriptor.context.hasOwnProperty('domain')) {
                         // domain is expected to hold a single ID condition (ex. ['id', '=', 3])
                         if(Array.isArray(descriptor.context.domain) && descriptor.context.domain.length) {
@@ -202,7 +202,7 @@ export class AppSideMenuComponent implements OnInit {
                     const apiService = this.eq.getApiService();
                     const translationService = this.eq.getTranslationService();
 
-                    const translation:any = await apiService.getTranslation(this.object_class);
+                    const translation: any = await apiService.getTranslation(this.object_class);
 
                     // fetch view, with fallback to default name of same type
                     let view_type = 'form';
@@ -235,20 +235,21 @@ export class AppSideMenuComponent implements OnInit {
 
                             // retrieve fields from visibility domain, if any
                             if(route.hasOwnProperty('visible')) {
-                                let visibleDomain = route.visible;
 
-                                if(typeof visibleDomain == 'string') {
-                                    visibleDomain = JSON.parse(visibleDomain);
-                                }
-
-                                if(Array.isArray(visibleDomain) && visibleDomain.length) {
-                                    const domain = new Domain(visibleDomain);
-                                    // get first part of domain as target field
-                                    for(let clause of domain.getClauses()) {
-                                        for(let condition of clause.getConditions()) {
-                                            let object_field = condition.getOperand();
-                                            if(!object_fields.includes(object_field)) {
-                                                object_fields.push(object_field);
+                                if(typeof route.visible != 'boolean') {
+                                    let visibleDomain = route.visible;
+                                    if(typeof visibleDomain == 'string') {
+                                        visibleDomain = JSON.parse(visibleDomain);
+                                    }
+                                    if(Array.isArray(visibleDomain) && visibleDomain.length) {
+                                        const domain = new Domain(visibleDomain);
+                                        // get first part of domain as target field
+                                        for(let clause of domain.getClauses()) {
+                                            for(let condition of clause.getConditions()) {
+                                                let object_field = condition.getOperand();
+                                                if(!object_fields.includes(object_field)) {
+                                                    object_fields.push(object_field);
+                                                }
                                             }
                                         }
                                     }
@@ -297,30 +298,43 @@ export class AppSideMenuComponent implements OnInit {
 
                 // build routes, if any
                 for(let route of view_routes) {
-                    if(route.hasOwnProperty('visible')) {
-                        let visible: boolean = true;
-                        let array_domain = route.visible;
+                    let visible: boolean = true;
 
-                        if(typeof array_domain === 'string') {
-                            array_domain = JSON.parse(array_domain);
-                        }
-                        if(!Array.isArray(array_domain)) {
-                            console.warn('Invalid JSON in route.visible:', array_domain);
+                    if(route.hasOwnProperty('inline') && typeof route.inline === 'boolean') {
+                        visible = !route.inline;
+                    }
+
+                    if(visible && route.hasOwnProperty('visible')) {
+
+                        if(typeof route.visible === 'boolean') {
+                            visible = route.visible;
                         }
                         else {
-                            let domain = new Domain(array_domain);
-                            visible = domain.evaluate(this.object ?? {}, this.user, {}, this.environment);
+                            let array_domain = route.visible;
+
+                            if(typeof array_domain === 'string') {
+                                array_domain = JSON.parse(array_domain);
+                            }
+                            if(!Array.isArray(array_domain)) {
+                                console.warn('Invalid JSON in route.visible:', array_domain);
+                            }
+                            else {
+                                let domain = new Domain(array_domain);
+                                visible = domain.evaluate(this.object ?? {}, this.user, {}, this.environment);
+                            }
                         }
 
-                        if(!visible) {
-                            // remove route, if present
-                            let index:any = this.object_routes_items.findIndex( (e:any) => e.id == route.id );
-                            if(index >= 0) {
-                                this.object_routes_items.splice(index, 1);
-                            }
-                            continue;
-                        }
                     }
+
+                    if(!visible) {
+                        // remove route, if present
+                        let index:any = this.object_routes_items.findIndex( (e:any) => e.id == route.id );
+                        if(index >= 0) {
+                            this.object_routes_items.splice(index, 1);
+                        }
+                        continue;
+                    }
+
                     // add route, if not present yet
                     if(!this.object_routes_items.find( (e:any) => e.id == route.id )) {
                         this.object_routes_items.push(route);

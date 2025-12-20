@@ -172,7 +172,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
                 if(name.length) {
                     let parts = name.split(' ', 4);
                     for(let part of parts) {
-                        tmpDomain.addCondition(new Condition('name', 'ilike', '%'+part+'%'));
+                        tmpDomain.addCondition(new Condition('name', 'ilike', '%' + part + '%'));
                     }
                 }
                 let domain = (new Domain(this.domain)).merge(tmpDomain).toArray();
@@ -183,7 +183,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
                     let body:any = {
                         get: this.controller,
                         entity: this.entity,
-                        fields: ["id", "name", ...this.fields],
+                        fields: ['id', 'name', ...this.fields],
                         domain: JSON.stringify(domain),
                         ...this.params
                     };

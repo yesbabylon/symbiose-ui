@@ -129,7 +129,10 @@ export class Domain {
                     let tmp = object[target];
                     // target points to an object with subfields
                     if(typeof tmp === 'object' && !Array.isArray(tmp)) {
-                        if(tmp.hasOwnProperty('id')) {
+                        if(tmp === null) {
+                            value = 'null';
+                        }
+                        else if(tmp.hasOwnProperty('id')) {
                             value = tmp.id;
                         }
                         else if(tmp.hasOwnProperty('name')) {
@@ -190,7 +193,7 @@ export class Domain {
                 let operator = condition.operator;
                 let value = condition.value;
 
-                if(object.hasOwnProperty(condition.operand)) {
+                if(object?.hasOwnProperty(condition.operand)) {
                     operand = object[condition.operand];
                 }
 
@@ -316,7 +319,7 @@ export class Reference {
     }
 
     /**
-     * Update value by replacing any occurence of `object.` and `user.` notations with related attributes of given objects.
+     * Update value by replacing any occurrence of `object.` and `user.` notations with related attributes of given objects.
      *
      * @param object        An entity object to serve as reference.
      * @param user          A user object to serve as reference.
@@ -329,7 +332,7 @@ export class Reference {
             if(object && object.hasOwnProperty(target)) {
                 let tmp = object[target];
                 // target points to an object with subfields
-                if(typeof tmp === 'object' && !Array.isArray(tmp)) {
+                if(tmp && typeof tmp === 'object' && !Array.isArray(tmp)) {
                     if(tmp.hasOwnProperty('id')) {
                         result = tmp.id;
                     }

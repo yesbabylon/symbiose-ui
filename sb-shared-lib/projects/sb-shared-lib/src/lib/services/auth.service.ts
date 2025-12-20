@@ -144,7 +144,8 @@ export class AuthService {
     public async signIn(login: string, password: string) {
         try {
             const environment:any = await this.env.getEnv();
-            const data = await this.http.post<any>(environment.backend_url+'?do=user_auth_pwd', {
+            // const data = await this.http.post<any>(environment.backend_url+'?do=user_auth_pwd', {
+            const data = await this.http.post<any>(environment.rest_api_url + 'auth/pwd', {
                     login: login,
                     password: password
                 })

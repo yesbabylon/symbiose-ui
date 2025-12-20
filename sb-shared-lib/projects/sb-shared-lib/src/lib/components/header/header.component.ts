@@ -54,20 +54,22 @@ export class HeaderComponent implements OnInit {
 
     public calcUserInitials():string {
 
-        let res:string = '';
+        let res: string = '';
         if(this.user && typeof(this.user) == 'object' && this.user != null) {
-            if(this.user.hasOwnProperty('identity_id') && this.user.identity_id && typeof(this.user.identity_id) == 'object') {
-                if(this.user.identity_id.hasOwnProperty('firstname')) {
-                    res = this.user.identity_id.firstname.charAt(0);
+            if(this.user.hasOwnProperty('identity_id') && this.user.identity_id && typeof this.user.identity_id == 'object') {
+                const firstname = this.user.identity_id.firstname;
+                const lastname = this.user.identity_id.lastname;
+                if (typeof firstname === 'string' && firstname.length > 0) {
+                    res = firstname.charAt(0);
                 }
-                if(this.user.identity_id.hasOwnProperty('lastname')) {
-                    res += this.user.identity_id.lastname.charAt(0)
+                if (typeof lastname === 'string' && lastname.length > 0) {
+                    res += lastname.charAt(0);
                 }
             }
 
             if(res.length == 0) {
-                if(this.user.hasOwnProperty('name') && this.user.name.length > 0) {
-                    let parts = this.user.name.split(' ');
+                if(this.user.hasOwnProperty('name') && typeof this.user.name === 'string' && this.user.name.length > 0) {
+                    const parts = this.user.name.split(' ').filter((p: string) => p.length > 0);
                     if(parts.length > 0) {
                         res = parts[0].charAt(0);
                         if(parts.length > 1) {

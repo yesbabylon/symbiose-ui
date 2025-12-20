@@ -8,6 +8,7 @@ export * from './lib/services/api.service';
 export * from './lib/services/env.service';
 export * from './lib/services/auth.service';
 export * from './lib/services/context.service';
+export * from './lib/services/appinfo.service';
 export * from './lib/services/eq.service';
 export * from './lib/adapters/date.adapter';
 export * from './lib/directives/var.directive';

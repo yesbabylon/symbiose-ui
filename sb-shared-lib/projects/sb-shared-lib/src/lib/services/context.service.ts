@@ -77,17 +77,21 @@ export class ContextService {
             listen to context changes from eQ: notify components that need sync (e.g. sidemenu)
         */
 
-        this.eq.addSubscriber(['open', 'close'], (context:any) => {
+        this.eq.addSubscriber(['open', 'close'], (context: any) => {
             console.debug('ContextService : eQ context open/close', context);
             this.change({context: {...context}, context_only: true});
         });
 
-        this.eq.addSubscriber(['updated'], () => {
+        this.eq.addSubscriber(['updated'], (context: any) => {
             console.debug('ContextService : eQ context updated');
+            this.context = {
+                ...this.context,
+                ...context
+            };
             this.observable.next({context: {...this.context}});
         });
 
-        this.eq.addSubscriber(['navigate'], (descriptor:any) => {
+        this.eq.addSubscriber(['navigate'], (descriptor: any) => {
             console.debug('ContextService : eQ navigate');
             this.change({...descriptor, context_only: true});
         });
