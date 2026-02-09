@@ -55,6 +55,8 @@ export class AppSideMenuComponent implements OnInit {
         content: [] // array of objects
     };
 
+    public routesDisabled: boolean = false;
+
     private view_id: string = '';
     private object_class: string = '';
     private object_id: number = 0;
@@ -97,6 +99,7 @@ export class AppSideMenuComponent implements OnInit {
             console.debug('SideMenu::received descriptor from Context', descriptor);
 
             // #todo - check if context is distinct
+            this.routesDisabled = (descriptor.context.mode ?? 'view') === 'edit';
 
             // reset local vars
             this.object_checks_result.title = "";
@@ -316,7 +319,18 @@ export class AppSideMenuComponent implements OnInit {
                                 array_domain = JSON.parse(array_domain);
                             }
                             if(!Array.isArray(array_domain)) {
-                                console.warn('Invalid JSON in route.visible:', array_domain);
+                                if(typeof route.visible === 'object') {
+                                    const context_mode = descriptor.context.mode ?? 'view';
+                                    if(route.visible.hasOwnProperty('view') && context_mode === 'view') {
+                                        visible = route.visible.view;
+                                    }
+                                    if(route.visible.hasOwnProperty('edit') && context_mode === 'view') {
+                                        visible = route.visible.edit;
+                                    }
+                                }
+                                else {
+                                    console.warn('Invalid JSON in route.visible:', array_domain);
+                                }
                             }
                             else {
                                 let domain = new Domain(array_domain);
@@ -537,6 +551,11 @@ export class AppSideMenuComponent implements OnInit {
 
     public onObjectRoute(item: any) {
         console.debug('AppSideMenuComponent::onObjectRoute', item, this.view_id, this.object_class, this.object_id, this.object);
+
+        if(this.routesDisabled) {
+            console.debug('AppSideMenuComponent::onObjectRoute - routes are disabled on current context, ignoring onObjectRoute');
+            return;
+        }
 
         let descriptor: any = {};
         let target_id:any = 0;

@@ -20,7 +20,14 @@
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'object-routes'">
         <div class="object-routes-item" *ngFor="let item of object_routes_items">
-            <button tabindex="-1" mat-stroked-button (click)="onObjectRoute(item)"><mat-icon >{{item.icon}}</mat-icon> &nbsp; {{item.label}} </button>
+            <button
+                    tabindex="-1"
+                    mat-stroked-button
+                    [disabled]="routesDisabled"
+                    [title]="routesDisabled ? 'unavailable under edit mode' : (item.description ?? '')"
+                    (click)="onObjectRoute(item)">
+                <mat-icon >{{item.icon}}</mat-icon> &nbsp; {{item.label}}
+            </button>
         </div>
     </div>
 
