@@ -159,7 +159,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
                 }
             }
             catch(error:any) {
-                console.warn('an unexpected error occured');
+                console.warn('An unexpected error occurred');
             }
         }
     }
