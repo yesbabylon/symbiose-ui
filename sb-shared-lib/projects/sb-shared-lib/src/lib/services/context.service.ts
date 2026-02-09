@@ -143,7 +143,7 @@ export class ContextService {
         if(descriptor.hasOwnProperty('route') && descriptor.route != this.route) {
             console.debug("ContextService: received route change request", descriptor, this);
             // make sure no eQ context is left open (call from external service)
-            let confirm_close:boolean = await this.eq.closeAll();
+            let confirm_close: boolean = await this.eq.closeAll();
             if(!confirm_close) {
                 // abort context change
                 return;
