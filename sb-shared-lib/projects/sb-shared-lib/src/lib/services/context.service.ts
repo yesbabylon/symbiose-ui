@@ -123,7 +123,7 @@ export class ContextService {
     *
     * @param descriptor  Descriptor might contain both route and context objects.
     */
-    public async change(descriptor:any) {
+    public async change(descriptor: any) {
 
         // if a call is pending, abort it
         if(this.timeout) {
@@ -135,13 +135,16 @@ export class ContextService {
             pass-1 update the context part of the local descriptor (to allow subscribers to route change to get the current value)
         */
         if(descriptor.hasOwnProperty('context')) {
-            console.debug("ContextService: received context change request", descriptor, this);
-            this.context = {...descriptor.context};
+            console.debug('ContextService: received context change request', descriptor, this);
+            // popup must not change global context
+            if(descriptor.context.display_mode !== 'popup') {
+                this.context = {...descriptor.context};
+            }
         }
 
         // navigate to route, if requested (a route is present)
         if(descriptor.hasOwnProperty('route') && descriptor.route != this.route) {
-            console.debug("ContextService: received route change request", descriptor, this);
+            console.debug('ContextService: received route change request', descriptor, this);
             // make sure no eQ context is left open (call from external service)
             let confirm_close: boolean = await this.eq.closeAll();
             if(!confirm_close) {
@@ -167,9 +170,9 @@ export class ContextService {
         */
         // else if(descriptor.hasOwnProperty('context') && Object.keys(descriptor.context).length) {
         else if(descriptor.hasOwnProperty('context')) {
-            console.debug("ContextService: processing received context", descriptor);
+            console.debug('ContextService: processing received context', descriptor);
             // ignore route, if present
-            let context:any = {...descriptor.context};
+            let context: any = {...descriptor.context};
             // inject current target (might have been updated by distinct controllers)
             context.target = this.target;
             let context_silent = false;

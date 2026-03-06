@@ -102,7 +102,7 @@ export class AppSideMenuComponent implements OnInit {
             this.routesDisabled = (descriptor.context.mode ?? 'view') === 'edit';
 
             // reset local vars
-            this.object_checks_result.title = "";
+            this.object_checks_result.title = '';
             this.object_checks_result.content = [];
             // #memo - routes are updated dynamically
             // this.object_routes_items = [];
