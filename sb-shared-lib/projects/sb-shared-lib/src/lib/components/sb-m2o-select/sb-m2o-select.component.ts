@@ -6,7 +6,7 @@ import { fromEvent, Observable, ReplaySubject, Subject } from 'rxjs';
 import { map, mergeMap, debounceTime, startWith, takeUntil } from 'rxjs/operators';
 
 import { ApiService } from '../../services/api.service';
-import { Condition, Domain } from '../../classes/domain.class';
+import { Domain, Condition } from '../../classes/domain.class';
 import { splitAtColon } from '@angular/compiler/src/util';
 
 @Component({
@@ -170,6 +170,7 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
             try {
                 let tmpDomain = new Domain([]);
                 if(name.length) {
+                    // combine search terms as AND conditions (each word must match) within a single clause to narrow results
                     let parts = name.split(' ', 4);
                     for(let part of parts) {
                         tmpDomain.addCondition(new Condition('name', 'ilike', '%' + part + '%'));
