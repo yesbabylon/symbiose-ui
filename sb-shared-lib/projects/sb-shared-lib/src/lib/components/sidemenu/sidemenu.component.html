@@ -64,7 +64,7 @@
     </div>
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'user-settings'">
-        <div class="user-settings-item" >
+        <div class="user-settings-item" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
             <strong>{{user.name}}</strong><br />
             {{user.login}}
         </div>
