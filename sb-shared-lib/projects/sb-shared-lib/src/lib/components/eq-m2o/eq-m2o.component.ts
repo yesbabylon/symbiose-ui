@@ -19,7 +19,7 @@ import {Observable, ReplaySubject} from 'rxjs';
 import {map, mergeMap, debounceTime} from 'rxjs/operators';
 
 import {ApiService} from '../../services/api.service';
-import {Domain, Condition} from '../../classes/domain.class';
+import {Domain} from '../../classes/domain.class';
 
 
 @Component({
@@ -223,13 +223,14 @@ export class EqM2oComponent implements OnInit, OnChanges, AfterViewInit, AfterCo
         }
 
         try {
-            const tmpDomain: Domain = new Domain([]);
-            if(name.length) {
+            let tmpDomain: Domain = new Domain([]);
+            if(name.trim().length) {
                 // combine search terms as AND conditions (each word must match) within a single clause to narrow results
-                const parts: string[] = name.split(' ', 4);
-                for(const part of parts) {
-                    tmpDomain.addCondition(new Condition('name', 'ilike', '%' + part + '%'));
-                }
+                const searchDomain = name.trim()
+                    .split(/\s+/, 4)
+                    .map((part: string) => ['name', 'ilike', '%' + part + '%']);
+
+                tmpDomain = new Domain(searchDomain);
             }
             const domain: any[] = (new Domain(this.domain)).merge(tmpDomain).toArray();
             let data: any[];

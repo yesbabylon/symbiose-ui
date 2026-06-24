@@ -6,8 +6,7 @@ import { fromEvent, Observable, ReplaySubject, Subject } from 'rxjs';
 import { map, mergeMap, debounceTime, startWith, takeUntil } from 'rxjs/operators';
 
 import { ApiService } from '../../services/api.service';
-import { Domain, Condition } from '../../classes/domain.class';
-import { splitAtColon } from '@angular/compiler/src/util';
+import { Domain } from '../../classes/domain.class';
 
 @Component({
   selector: 'sb-m2o-select',
@@ -169,12 +168,13 @@ export class SbMany2OneSelectComponent implements OnInit, OnChanges, AfterViewIn
         if(this.entity.length && (!this.item || this.item.name != name) ) {
             try {
                 let tmpDomain = new Domain([]);
-                if(name.length) {
+                if(name.trim().length) {
                     // combine search terms as AND conditions (each word must match) within a single clause to narrow results
-                    let parts = name.split(' ', 4);
-                    for(let part of parts) {
-                        tmpDomain.addCondition(new Condition('name', 'ilike', '%' + part + '%'));
-                    }
+                    const search_domain = name.trim()
+                        .split(/\s+/, 4)
+                        .map((part: string) => ['name', 'ilike', '%' + part + '%']);
+
+                    tmpDomain = new Domain(search_domain);
                 }
                 let domain = (new Domain(this.domain)).merge(tmpDomain).toArray();
 
