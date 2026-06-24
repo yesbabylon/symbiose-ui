@@ -304,9 +304,19 @@ export class Domain {
                     }
                     cc_res = (operand.indexOf(value) > -1);
                 }
+                else if(operator == 'like' || operator == 'ilike') {
+                    const operand_value = String(operand ?? '');
+                    const search_value = String(value ?? '').replace(/^%|%$/g, '');
+                    if(operator == 'ilike') {
+                        cc_res = operand_value.toLowerCase().includes(search_value.toLowerCase());
+                    }
+                    else {
+                        cc_res = operand_value.includes(search_value);
+                    }
+                }
                 else {
                     let c_condition = '';
-                    if(['<', '>'].includes(operator)) {
+                    if(['<', '>', '<=', '>='].includes(operator)) {
                         const numeric_value = Number.isNaN(+value) ? 0 : +value;
                         c_condition = "( " + operand + " " + operator + " " + numeric_value + ")";
                     }
@@ -344,7 +354,7 @@ export class Domain {
             for(const condition of clause.getConditions()) {
                 const operand = condition.operand;
                 let operator = condition.operator;
-                const value = condition.value;
+                let value = condition.value;
 
                 let cc_res: boolean;
 
@@ -355,7 +365,7 @@ export class Domain {
                     operator = '!=';
                 }
 
-                if(typeof value == 'number') {
+                if(typeof operand == 'number') {
                     if(operator == 'is') {
                         operator = '==';
                     }
@@ -365,7 +375,7 @@ export class Domain {
                 }
 
                 if(operator == 'is') {
-                    if(value === true) {
+                    if([true, 'true'].includes(value)) {
                         cc_res = operand;
                     }
                     else if([false, null, 'false', 'null', 'empty'].includes(value)) {
@@ -376,8 +386,8 @@ export class Domain {
                     }
                 }
                 else if(operator == 'is not') {
-                    if(value === false) {
-                        cc_res = operand;
+                    if([true, 'true'].includes(value)) {
+                        cc_res = !operand;
                     }
                     else if([false, null, 'false', 'null', 'empty'].includes(value)) {
                         cc_res = !(['', false, undefined, null].includes(operand) || (Array.isArray(operand) && !operand.length));
@@ -388,13 +398,13 @@ export class Domain {
                 }
                 else if(operator == 'in') {
                     if(!Array.isArray(value)) {
-                        continue;
+                        value = [value];
                     }
                     cc_res = (value.indexOf(operand) > -1);
                 }
                 else if(operator == 'not in') {
                     if(!Array.isArray(value)) {
-                        continue;
+                        value = [value];
                     }
                     cc_res = (value.indexOf(operand) == -1);
                 }
@@ -404,8 +414,25 @@ export class Domain {
                     }
                     cc_res = (operand.indexOf(value) > -1);
                 }
+                else if(operator == 'like' || operator == 'ilike') {
+                    const operand_value = String(operand ?? '');
+                    const search_value = String(value ?? '').replace(/^%|%$/g, '');
+                    if(operator == 'ilike') {
+                        cc_res = operand_value.toLowerCase().includes(search_value.toLowerCase());
+                    }
+                    else {
+                        cc_res = operand_value.includes(search_value);
+                    }
+                }
                 else {
-                    const c_condition = "( '" + operand + "' " + operator + " '" + value + "')";
+                    let c_condition = '';
+                    if(['<', '>', '<=', '>='].includes(operator)) {
+                        const numeric_value = Number.isNaN(+value) ? 0 : +value;
+                        c_condition = "( " + operand + " " + operator + " " + numeric_value + ")";
+                    }
+                    else {
+                        c_condition = "( '" + operand + "' " + operator + " '" + value + "')";
+                    }
 
                     cc_res = false;
                     try {
