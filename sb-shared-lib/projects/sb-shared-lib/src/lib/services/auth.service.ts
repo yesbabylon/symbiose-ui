@@ -169,12 +169,17 @@ export class AuthService {
         }
     }
 
-    public async signInTotp(login: string, token: string, code: string) {
+    /**
+     * Upon success, the response from the server should contain httpOnly cookies holding access_token.
+     *
+     * @param token The token that certifies that the user recently gave valid credentials
+     * @param code  The authentication code needed for totp
+     */
+    public async signInTotp(token: string, code: string) {
         try {
             const environment:any = await this.env.getEnv();
 
             await this.http.post<any>(environment.rest_api_url + 'auth/totp', {
-                login: login,
                 auth_token: token,
                 auth_code: code
             })
