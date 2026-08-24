@@ -156,6 +156,40 @@ export class AuthService {
                 )
                 .toPromise();
 
+            if(data?.mfa_required) {
+                return data;
+            }
+            else {
+                // authentication will trigger router navigation within running controller
+                await this.authenticate();
+            }
+        }
+        catch(response) {
+            throw response;
+        }
+    }
+
+    /**
+     * Upon success, the response from the server should contain httpOnly cookies holding access_token.
+     *
+     * @param token The token that certifies that the user recently gave valid credentials
+     * @param code  The authentication code needed for totp
+     */
+    public async signInTotp(token: string, code: string) {
+        try {
+            const environment:any = await this.env.getEnv();
+
+            await this.http.post<any>(environment.rest_api_url + 'auth/totp', {
+                auth_token: token,
+                auth_code: code
+            })
+                .pipe(
+                    catchError((response: HttpErrorResponse, caught: Observable<any>) => {
+                        throw response;
+                    })
+                )
+                .toPromise();
+
             // authentication will trigger router navigation within running controller
             await this.authenticate();
         }
