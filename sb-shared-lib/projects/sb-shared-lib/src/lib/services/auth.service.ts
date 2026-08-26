@@ -1,11 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { Observable, ReplaySubject } from 'rxjs';
-import { catchError } from "rxjs/operators";
+import { ReplaySubject } from 'rxjs';
 
 import { UserClass } from '../classes/user.class';
 import { EnvService} from './env.service';
+
+export type AuthMethod = 'pwd' | 'otp' | 'passkey' | 'email' | 'recovery_code';
+
+export interface AuthResponse {
+    status: 'authenticated' | 'challenge';
+    auth_token?: string;
+    challenge?: {
+        method: AuthMethod;
+        data?: any;
+    };
+}
 
 @Injectable({
     providedIn: 'root'
@@ -133,69 +143,71 @@ export class AuthService {
     }
 
     /**
-     * Upon success, the response from the server should contain httpOnly cookies holding access_token.
+     * Attempts authentication using the requested method.
      *
-     * @param login     Email address of the user to log in.
-     * @param password  Untouched string of password given by user.
+     * When authentication is complete, the user session is refreshed through
+     * `authenticate()`. A challenge is returned to the caller without making a
+     * `/userinfo` request, so the application can decide which UI to display.
      *
-     * @returns Promise
-     * @throws HttpErrorResponse  HTTP error that occurred during user login
+     * @throws HttpErrorResponse HTTP error that occurred during authentication
+     */
+    public async authenticateWith(method: AuthMethod, credentials: any, authToken?: string): Promise<AuthResponse> {
+        const environment: any = await this.env.getEnv();
+        const data = await this.http.post<any>(
+            environment.rest_api_url + `auth/${method}`,
+            {
+                ...credentials,
+                ...(authToken ? {auth_token: authToken} : {})
+            }
+        ).toPromise();
+
+        const result = this.normalizeAuthResponse(data);
+
+        if(result.status === 'authenticated') {
+            await this.authenticate();
+        }
+
+        return result;
+    }
+
+    /**
+     * @deprecated Use `authenticateWith('pwd', {login, password})` instead.
      */
     public async signIn(login: string, password: string) {
-        try {
-            const environment:any = await this.env.getEnv();
-            // const data = await this.http.post<any>(environment.backend_url+'?do=user_auth_pwd', {
-            const data = await this.http.post<any>(environment.rest_api_url + 'auth/pwd', {
-                    login: login,
-                    password: password
-                })
-                .pipe(
-                    catchError((response: HttpErrorResponse, caught: Observable<any>) => {
-                        throw response;
-                    })
-                )
-                .toPromise();
+        const result = await this.authenticateWith('pwd', {login, password});
 
-            if(data?.mfa_required) {
-                return data;
-            }
-            else {
-                // authentication will trigger router navigation within running controller
-                await this.authenticate();
-            }
-        }
-        catch(response) {
-            throw response;
+        if(result.status === 'challenge') {
+            return {
+                mfa_required: true,
+                auth_token: result.auth_token,
+                ...result.challenge?.data
+            };
         }
     }
 
     /**
-     * Upon success, the response from the server should contain httpOnly cookies holding access_token.
-     *
-     * @param token The token that certifies that the user recently gave valid credentials
-     * @param code  The authentication code needed for totp
+     * Keeps callers on the generic authentication contract while the backend
+     * transitions from the former TOTP-specific response.
      */
-    public async signInTotp(token: string, code: string) {
-        try {
-            const environment:any = await this.env.getEnv();
-
-            await this.http.post<any>(environment.rest_api_url + 'auth/totp', {
-                auth_token: token,
-                auth_code: code
-            })
-                .pipe(
-                    catchError((response: HttpErrorResponse, caught: Observable<any>) => {
-                        throw response;
-                    })
-                )
-                .toPromise();
-
-            // authentication will trigger router navigation within running controller
-            await this.authenticate();
+    private normalizeAuthResponse(data: any): AuthResponse {
+        if(data && (data.status === 'authenticated' || data.status === 'challenge')) {
+            return data;
         }
-        catch(response) {
-            throw response;
+
+        if(data && 'mfa_required' in data && data.mfa_required) {
+            const {mfa_required, auth_token, ...challengeData} = data;
+
+            return {
+                status: 'challenge',
+                auth_token,
+                challenge: {
+                    method: 'otp',
+                    ...(Object.keys(challengeData).length ? {data: challengeData} : {})
+                }
+            };
         }
+
+        return {status: 'authenticated'};
     }
 
     /**
