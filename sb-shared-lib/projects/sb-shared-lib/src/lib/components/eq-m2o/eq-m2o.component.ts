@@ -365,6 +365,7 @@ export class EqM2oComponent implements OnInit, OnChanges, AfterViewInit, AfterCo
         this.itemSelected.emit(this.formControl.value);
         this.initialSelectedItem = this.formControl.value;
         this.isFocused = false;
+        this.toggleActive(false);
     }
 
     public activate(): void {
