@@ -1,47 +1,45 @@
-import { Component, OnInit, Output, Input, EventEmitter, NgZone, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, NgZone, ChangeDetectorRef, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { debounceTime } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { ContextService } from '../../services/context.service';
 import { EnvService } from '../../services/env.service';
 import { EqualUIService } from '../../services/eq.service';
-
-import * as screenfull from 'screenfull';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import Domain from '../../classes/domain.class';
 
 @Component({
-  selector: 'app-sidemenu',
-  templateUrl: './sidemenu.component.html',
-  styleUrls: ['./sidemenu.component.scss']
+    selector: 'app-sidemenu',
+    templateUrl: './sidemenu.component.html',
+    styleUrls: ['./sidemenu.component.scss']
 })
 export class AppSideMenuComponent implements OnInit {
 
-  @ViewChild('helpfullscreen') helpFullScreen: ElementRef;
-  @Output() updated = new EventEmitter();
-  // @Input() refresh: Observable<Boolean>;
+    @ViewChild('descriptionPopup') private descriptionPopup!: TemplateRef<void>;
+    @Output() updated = new EventEmitter();
 
-  private environment: any = null;
+    private environment: any = null;
 
-  public panes: any = [{
-      id: "validity-check",
-      icon: "check_circle_outline"
-    },
-    {
-      id: "view-help",
-      icon: "help_outline"
-    },
-    {
-      id: "object-history",
-      icon: "history"
-    },
-    {
-      id: "user-settings",
-      icon: "settings"
-    }
-  ];
+    public panes: any = [
+        {
+            id: "validity-check",
+            icon: "check_circle_outline"
+        },
+        {
+            id: "view-help",
+            icon: "help_outline"
+        },
+        {
+            id: "object-history",
+            icon: "history"
+        },
+        {
+            id: "user-settings",
+            icon: "settings"
+        }
+    ];
 
     public selected_tab_id = 'object-routes';
     public user: any = {};
@@ -72,7 +70,8 @@ export class AppSideMenuComponent implements OnInit {
         private zone: NgZone,
         private env: EnvService,
         private eq:EqualUIService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private dialog: MatDialog
     ) {}
 
     public ngOnInit(): void {
@@ -453,14 +452,14 @@ export class AppSideMenuComponent implements OnInit {
         }
     }
 
-    public onHelpFullScreen() {
-        console.debug('SideMenuComponent::onHelpFullScreen');
-        if (screenfull.isEnabled) {
-            screenfull.toggle(this.helpFullScreen.nativeElement);
-        }
-        else {
-            console.warn('screenfull not enabled');
-        }
+    public onOpenDescription() {
+        this.dialog.open(this.descriptionPopup, {
+            panelClass: 'description-popup-dialog',
+            width: '760px',
+            maxWidth: 'calc(100vw - 32px)',
+            height: 'calc(100vh - 80px)',
+            maxHeight: 'calc(100vh - 32px)'
+        });
     }
 
     public async onDisconnect() {

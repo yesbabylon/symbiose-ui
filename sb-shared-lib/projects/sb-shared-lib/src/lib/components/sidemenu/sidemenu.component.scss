@@ -1,3 +1,293 @@
+@mixin context-help-panel {
+    min-height: 100%;
+    background-color: white;
+    color: #374151;
+
+    .context-help-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 0 4px 0 12px;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: rgba(255, 255, 255, 0.96);
+
+        .context-help-title {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+
+            mat-icon {
+                width: 20px;
+                height: 20px;
+                margin-right: 8px;
+                font-size: 20px;
+            }
+        }
+
+        button {
+            flex: 0 0 auto;
+            transform: scale(0.85);
+            color: #73818f;
+        }
+    }
+
+    .context-help {
+        display: block;
+        padding: 16px 14px 24px;
+        font-size: 14px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+        height: calc(100% - 50px);
+        overflow-y: auto;
+
+        ::ng-deep {
+            > :first-child {
+                margin-top: 0;
+            }
+
+            > :last-child {
+                margin-bottom: 0;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin: 24px 0 10px;
+                color: #1f2937;
+                font-weight: 500;
+                line-height: 1.25;
+            }
+
+            h1 {
+                padding-bottom: 8px;
+                border-bottom: 1px solid #e5e7eb;
+                font-size: 22px;
+            }
+
+            h2 {
+                font-size: 19px;
+            }
+
+            h3 {
+                font-size: 17px;
+            }
+
+            h4,
+            h5,
+            h6 {
+                font-size: 15px;
+            }
+
+            p {
+                margin: 0 0 12px;
+            }
+
+            strong {
+                color: #1f2937;
+                font-weight: 500;
+            }
+
+            ul,
+            ol {
+                margin: 0 0 14px;
+                padding-left: 22px;
+            }
+
+            li + li {
+                margin-top: 5px;
+            }
+
+            a {
+                color: var(--mdc-theme-primary, #3f51b5);
+                text-decoration: none;
+
+                &:hover,
+                &:focus {
+                    text-decoration: underline;
+                }
+            }
+
+            blockquote {
+                margin: 16px 0;
+                padding: 10px 12px;
+                border-left: 3px solid var(--mdc-theme-primary, #3f51b5);
+                background-color: #f3f4f6;
+                color: #4b5563;
+
+                > :last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            code {
+                padding: 2px 4px;
+                border-radius: 4px;
+                background-color: #f3f4f6;
+                font-family: "Roboto Mono", Consolas, monospace;
+                font-size: 12px;
+                word-break: break-word;
+            }
+
+            pre {
+                max-width: 100%;
+                margin: 16px 0;
+                padding: 12px;
+                overflow-x: auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                background-color: #f8fafc;
+
+                code {
+                    padding: 0;
+                    background: transparent;
+                    white-space: pre;
+                    word-break: normal;
+                }
+            }
+
+            table {
+                display: block;
+                width: 100%;
+                margin: 16px 0;
+                overflow-x: auto;
+                border-spacing: 0;
+                border-collapse: collapse;
+                font-size: 13px;
+            }
+
+            th,
+            td {
+                padding: 7px 9px;
+                border: 1px solid #d1d5db;
+                text-align: left;
+                vertical-align: top;
+            }
+
+            th {
+                background-color: #f3f4f6;
+                color: #1f2937;
+                font-weight: 500;
+            }
+
+            img {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                margin: 16px auto;
+                border-radius: 4px;
+            }
+
+            hr {
+                margin: 24px 0;
+                border: 0;
+                border-top: 1px solid #e5e7eb;
+            }
+        }
+    }
+
+    .context-help-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px 20px;
+        color: #9ca3af;
+        text-align: center;
+
+        mat-icon {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 12px;
+            font-size: 36px;
+        }
+
+        p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    }
+}
+
+::ng-deep .description-popup-dialog .mat-dialog-container {
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.description-popup {
+    @include context-help-panel;
+
+    box-sizing: border-box;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+
+    .context-help-header {
+        position: static;
+        flex: 0 0 auto;
+        min-height: 68px;
+        padding: 0 20px 0 28px;
+        border-bottom: 0;
+        background-color: white;
+
+        .context-help-title {
+            color: var(--mdc-theme-primary, #3f51b5);
+            line-height: 48px;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        button {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            flex: 0 0 24px;
+            align-items: center;
+            justify-content: center;
+            line-height: 24px;
+            transform: none;
+            background-color: #c7c9cc;
+            color: white;
+
+            mat-icon {
+                width: 14px;
+                height: 14px;
+                font-size: 14px;
+                line-height: 14px;
+            }
+        }
+    }
+
+    .context-help {
+        box-sizing: border-box;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        margin: 0 auto;
+        padding: 8px 32px 48px;
+        flex: 1 1 auto;
+
+        ::ng-deep {
+            p,
+            li {
+                text-align: justify;
+            }
+        }
+    }
+}
+
 :host {
 
     .side-inner {
@@ -49,258 +339,7 @@
             }
 
             .context-help-panel {
-                min-height: 100%;
-                background-color: white;
-                color: #374151;
-
-                .context-help-header {
-                    position: sticky;
-                    top: 0;
-                    z-index: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    min-height: 48px;
-                    padding: 0 4px 0 12px;
-                    border-bottom: 1px solid #e5e7eb;
-                    background-color: rgba(255, 255, 255, 0.96);
-
-                    .context-help-title {
-                        display: flex;
-                        align-items: center;
-                        min-width: 0;
-                        color: #4b5563;
-                        font-size: 14px;
-                        font-weight: 500;
-
-                        mat-icon {
-                            width: 20px;
-                            height: 20px;
-                            margin-right: 8px;
-                            font-size: 20px;
-                        }
-                    }
-
-                    button {
-                        flex: 0 0 auto;
-                        transform: scale(0.85);
-                        color: #73818f;
-
-                        .fullscreen-close-icon {
-                            display: none;
-                        }
-                    }
-                }
-
-                .context-help {
-                    display: block;
-                    padding: 16px 14px 24px;
-                    font-size: 14px;
-                    line-height: 1.6;
-                    overflow-wrap: anywhere;
-                    height: calc(100% - 50px);
-                    overflow-y: auto;
-
-                    ::ng-deep {
-                        > :first-child {
-                            margin-top: 0;
-                        }
-
-                        > :last-child {
-                            margin-bottom: 0;
-                        }
-
-                        h1,
-                        h2,
-                        h3,
-                        h4,
-                        h5,
-                        h6 {
-                            margin: 24px 0 10px;
-                            color: #1f2937;
-                            font-weight: 500;
-                            line-height: 1.25;
-                        }
-
-                        h1 {
-                            padding-bottom: 8px;
-                            border-bottom: 1px solid #e5e7eb;
-                            font-size: 22px;
-                        }
-
-                        h2 {
-                            font-size: 19px;
-                        }
-
-                        h3 {
-                            font-size: 17px;
-                        }
-
-                        h4,
-                        h5,
-                        h6 {
-                            font-size: 15px;
-                        }
-
-                        p {
-                            margin: 0 0 12px;
-                        }
-
-                        strong {
-                            color: #1f2937;
-                            font-weight: 500;
-                        }
-
-                        ul,
-                        ol {
-                            margin: 0 0 14px;
-                            padding-left: 22px;
-                        }
-
-                        li + li {
-                            margin-top: 5px;
-                        }
-
-                        a {
-                            color: var(--mdc-theme-primary, #3f51b5);
-                            text-decoration: none;
-
-                            &:hover,
-                            &:focus {
-                                text-decoration: underline;
-                            }
-                        }
-
-                        blockquote {
-                            margin: 16px 0;
-                            padding: 10px 12px;
-                            border-left: 3px solid var(--mdc-theme-primary, #3f51b5);
-                            background-color: #f3f4f6;
-                            color: #4b5563;
-
-                            > :last-child {
-                                margin-bottom: 0;
-                            }
-                        }
-
-                        code {
-                            padding: 2px 4px;
-                            border-radius: 4px;
-                            background-color: #f3f4f6;
-                            font-family: "Roboto Mono", Consolas, monospace;
-                            font-size: 12px;
-                            word-break: break-word;
-                        }
-
-                        pre {
-                            max-width: 100%;
-                            margin: 16px 0;
-                            padding: 12px;
-                            overflow-x: auto;
-                            border: 1px solid #e5e7eb;
-                            border-radius: 6px;
-                            background-color: #f8fafc;
-
-                            code {
-                                padding: 0;
-                                background: transparent;
-                                white-space: pre;
-                                word-break: normal;
-                            }
-                        }
-
-                        table {
-                            display: block;
-                            width: 100%;
-                            margin: 16px 0;
-                            overflow-x: auto;
-                            border-spacing: 0;
-                            border-collapse: collapse;
-                            font-size: 13px;
-                        }
-
-                        th,
-                        td {
-                            padding: 7px 9px;
-                            border: 1px solid #d1d5db;
-                            text-align: left;
-                            vertical-align: top;
-                        }
-
-                        th {
-                            background-color: #f3f4f6;
-                            color: #1f2937;
-                            font-weight: 500;
-                        }
-
-                        img {
-                            display: block;
-                            max-width: 100%;
-                            height: auto;
-                            margin: 16px auto;
-                            border-radius: 4px;
-                        }
-
-                        hr {
-                            margin: 24px 0;
-                            border: 0;
-                            border-top: 1px solid #e5e7eb;
-                        }
-                    }
-                }
-
-                .context-help-empty {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    padding: 48px 20px;
-                    color: #9ca3af;
-                    text-align: center;
-
-                    mat-icon {
-                        width: 36px;
-                        height: 36px;
-                        margin-bottom: 12px;
-                        font-size: 36px;
-                    }
-
-                    p {
-                        margin: 0;
-                        font-size: 13px;
-                        line-height: 1.5;
-                    }
-                }
-            }
-
-            .context-help-panel:fullscreen,
-            .context-help-panel:-webkit-full-screen {
-                height: 100%;
-                overflow-y: auto;
-
-                .context-help-header {
-                    padding-right: 16px;
-                    padding-left: 24px;
-
-                    button {
-                        .fullscreen-open-icon {
-                            display: none;
-                        }
-
-                        .fullscreen-close-icon {
-                            display: inline-block;
-                        }
-                    }
-                }
-
-                .context-help,
-                .context-help-empty {
-                    box-sizing: border-box;
-                    width: 100%;
-                    max-width: 920px;
-                    margin-right: auto;
-                    margin-left: auto;
-                    padding: 32px 48px 48px;
-                }
+                @include context-help-panel;
             }
 
             .object-history-item {
