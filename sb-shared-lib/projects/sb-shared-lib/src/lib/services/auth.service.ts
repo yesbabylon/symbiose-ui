@@ -6,7 +6,7 @@ import { ReplaySubject } from 'rxjs';
 import { UserClass } from '../classes/user.class';
 import { EnvService} from './env.service';
 
-export type AuthMethod = 'pwd' | 'otp' | 'totp' | 'email_otp' | 'passkey' | 'email' | 'recovery_code';
+export type AuthMethod = 'pwd' | 'otp' | 'totp' | 'emailotp' | 'passkey' | 'email' | 'recovery_code';
 
 export interface AuthResponse {
     status: 'authenticated' | 'challenge';
