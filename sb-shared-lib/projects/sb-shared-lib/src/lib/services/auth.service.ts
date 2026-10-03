@@ -6,13 +6,15 @@ import { ReplaySubject } from 'rxjs';
 import { UserClass } from '../classes/user.class';
 import { EnvService} from './env.service';
 
-export type AuthMethod = 'pwd' | 'otp' | 'totp' | 'emailotp' | 'passkey' | 'email' | 'recovery_code';
+export type AuthMethod = 'pwd' | 'totp' | 'emailotp' | 'passkey';
+
+export type ChallengeAuthMethod = 'totp' | 'email_otp';
 
 export interface AuthResponse {
     status: 'authenticated' | 'challenge';
     auth_token?: string;
     challenge?: {
-        method: 'otp';
+        method: ChallengeAuthMethod;
         data?: any;
     };
 }
@@ -185,26 +187,9 @@ export class AuthService {
         }
     }
 
-    /**
-     * Keeps callers on the generic authentication contract while the backend
-     * transitions from the former TOTP-specific response.
-     */
     private normalizeAuthResponse(data: any): AuthResponse {
         if(data && (data.status === 'authenticated' || data.status === 'challenge')) {
             return data;
-        }
-
-        if(data && 'mfa_required' in data && data.mfa_required) {
-            const {mfa_required, auth_token, ...challengeData} = data;
-
-            return {
-                status: 'challenge',
-                auth_token,
-                challenge: {
-                    method: 'otp',
-                    ...(Object.keys(challengeData).length ? {data: challengeData} : {})
-                }
-            };
         }
 
         return {status: 'authenticated'};
