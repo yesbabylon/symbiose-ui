@@ -7,25 +7,25 @@
             <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'validity-check'"><mat-icon >check_circle_outline</mat-icon></button>
         </div>
         <div class="tab-button" [class.active]="selected_tab_id == 'view-help'">
-            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'view-help'" ><mat-icon >help_outline</mat-icon></button>
+            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'view-help'"><mat-icon >help_outline</mat-icon></button>
         </div>
         <div class="tab-button" [class.active]="selected_tab_id == 'object-history'">
-            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'object-history'" ><mat-icon >history</mat-icon></button>
+            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'object-history'"><mat-icon >history</mat-icon></button>
         </div>
         <div class="tab-button" [class.active]="selected_tab_id == 'user-settings'">
-            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'user-settings'" ><mat-icon >settings</mat-icon></button>
+            <button tabindex="-1" mat-icon-button (click)="selected_tab_id = 'user-settings'"><mat-icon >settings</mat-icon></button>
         </div>
     </div>
-
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'object-routes'">
         <div class="object-routes-item" *ngFor="let item of object_routes_items">
             <button
-                    tabindex="-1"
-                    mat-stroked-button
-                    [disabled]="routesDisabled"
-                    [title]="routesDisabled ? 'unavailable under edit mode' : (item.description ?? '')"
-                    (click)="onObjectRoute(item)">
+                tabindex="-1"
+                mat-stroked-button
+                [disabled]="routesDisabled"
+                [title]="routesDisabled ? 'unavailable under edit mode' : (item.description ?? '')"
+                (click)="onObjectRoute(item)"
+            >
                 <mat-icon >{{item.icon}}</mat-icon> &nbsp; {{item.label}}
             </button>
         </div>
@@ -43,24 +43,36 @@
         <div *ngIf="!object_checks_items.length" style="display: flex; justify-content: center;"><div style="opacity: 0.5;">Rien à signaler</div></div>
     </div>
 
-    <div class="tab-inner" [class.hidden]="selected_tab_id != 'view-help'">
-        <div style="display: flex; width: 100%">
-            <button tabindex="-1" mat-icon-button  (click)="onHelpFullScreen()" style="margin-left: auto; transform: scale(0.8);">
-                <mat-icon>open_in_full</mat-icon>
-            </button>
-        </div>
-        <div #helpfullscreen class="context-help" [innerHTML]="view_description | markdown"></div>
+    <div class="tab-inner context-help-tab" [class.hidden]="selected_tab_id != 'view-help'">
+        <section class="context-help-panel" aria-label="Documentation contextuelle">
+            <header class="context-help-header">
+                <div class="context-help-title">
+                    <mat-icon aria-hidden="true">help_outline</mat-icon>
+                    <span>Documentation</span>
+                </div>
+                <button
+                    mat-icon-button
+                    type="button"
+                    title="Ouvrir la documentation"
+                    aria-label="Ouvrir la documentation dans une fenêtre"
+                    (click)="onOpenDescription()"
+                >
+                    <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                </button>
+            </header>
+
+            <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
+        </section>
     </div>
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'object-history'">
-
         <div *ngFor="let change of latest_changes; let index = index"
-                (click)="onclickHistoryItem(change)"
-                class="object-history-item">
+             (click)="onclickHistoryItem(change)"
+             class="object-history-item"
+        >
             <div><strong>{{change.user_id?.name}}</strong></div>
             <div class="item-time"><span style="display: flex;"><i class="material-icons">{{(change.action == 'create') ? 'add_circle_outline' : 'update'}}</i>{{change.modified | date : 'EEE dd MMMM yyyy HH:mm'}}</span></div>
         </div>
-
     </div>
 
     <div class="tab-inner" [class.hidden]="selected_tab_id != 'user-settings'">
@@ -69,11 +81,42 @@
             {{user.login}}
         </div>
         <div class="user-settings-item" >
-            <button tabindex="-1" mat-stroked-button (click)="onUserSettings()"><mat-icon >settings</mat-icon> Paramètres utilisateur</button>
+            <button tabindex="-1" mat-stroked-button (click)="onUserSettings()"><mat-icon>settings</mat-icon> Paramètres utilisateur</button>
         </div>
         <div class="user-settings-item" >
-            <button tabindex="-1" mat-stroked-button (click)="onDisconnect()"><mat-icon >logout</mat-icon> Se déconnecter</button>
+            <button tabindex="-1" mat-stroked-button (click)="onDisconnect()"><mat-icon>logout</mat-icon> Se déconnecter</button>
         </div>
     </div>
-
 </div>
+
+<ng-template #descriptionPopup>
+    <section class="description-popup" aria-label="Documentation contextuelle">
+        <header class="context-help-header">
+            <div class="context-help-title">
+                <span>Documentation</span>
+            </div>
+            <button
+                mat-icon-button
+                mat-dialog-close
+                type="button"
+                title="Fermer"
+                aria-label="Fermer la documentation"
+            >
+                <mat-icon aria-hidden="true">close</mat-icon>
+            </button>
+        </header>
+
+        <ng-container *ngTemplateOutlet="descriptionContent"></ng-container>
+    </section>
+</ng-template>
+
+<ng-template #descriptionContent>
+    <markdown *ngIf="view_description; else noContextHelp" class="context-help" [data]="view_description"></markdown>
+
+    <ng-template #noContextHelp>
+        <div class="context-help-empty">
+            <mat-icon aria-hidden="true">description</mat-icon>
+            <p>Aucune documentation disponible pour cette vue.</p>
+        </div>
+    </ng-template>
+</ng-template>
